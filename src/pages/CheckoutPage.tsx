@@ -1,12 +1,24 @@
-
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { useCart } from "../context/CartContext";
+import type { CartItem } from "../types";
 
 interface CheckoutValues {
   fullName: string;
   email: string;
   address: string;
   city: string;
+}
+
+interface OrderConfirmation {
+  fullName: string;
+  email: string;
+  address: string;
+  city: string;
+  items: CartItem[];
+  totalPrice: number;
 }
 
 const initialValues: CheckoutValues = {
@@ -36,18 +48,153 @@ const checkoutSchema = Yup.object({
 });
 
 function Checkout() {
-  const handleSubmit = (
-    values: CheckoutValues,
-  ) => {
-    alert("შეკვეთა წარმატებით გაიგზავნა!");
 
-    console.log("შეკვეთა", values);
-  };
+  const { items, clearCart } = useCart();
 
-  const inputClass =
-    "w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200";
+  const [order, setOrder] = useState<OrderConfirmation | null>(null);
+
+  const inputClass = "w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200";
 
   const errorClass = "mt-1 text-sm text-red-600";
+
+  const totalPrice = items.reduce(
+    (total, item) =>
+      total + item.product.price * item.quantity,
+    0,
+  );
+
+  const handleSubmit = ( values: CheckoutValues, ) => {
+
+      // შეკვეთის მონაცემები შევინახოთ კალათის გასუფთავებამდე
+    setOrder({
+      ...values,
+      items: items.map((item) => ({ ...item })),
+      totalPrice,
+    });
+
+    // კალათის გასუფთავება
+    clearCart();
+  };
+
+  // შეკვეთის წარმატებით გაფორმების შემდეგ
+  if (order) {
+    return (
+      <main className="mx-auto max-w-2xl px-4 py-10">
+        <div className="rounded-xl border border-gray-200 bg-white p-6 sm:p-8">
+          <div className="mb-6 text-center">
+            <div className="mb-3 text-5xl text-green-600">
+              ✓
+            </div>
+
+            <h1 className="text-3xl font-bold text-gray-900">
+              გმადლობთ შეკვეთისთვის!
+            </h1>
+
+            <p className="mt-3 text-gray-600">
+              თქვენი შეკვეთა წარმატებით განთავსდა.
+            </p>
+          </div>
+
+          <div className="space-y-2 border-b border-gray-200 pb-5">
+            <h2 className="text-lg font-semibold text-gray-900">
+              შეკვეთის დეტალები
+            </h2>
+
+            <p className="text-gray-600">
+              სახელი: {order.fullName}
+            </p>
+
+            <p className="text-gray-600">
+              ელფოსტა: {order.email}
+            </p>
+
+            <p className="text-gray-600">
+              მისამართი: {order.address}, {order.city}
+            </p>
+          </div>
+
+          <div className="space-y-4 py-5">
+            <h2 className="text-lg font-semibold text-gray-900">
+              შეკვეთის შეჯამება
+            </h2>
+
+            {order.items.map((item) => (
+              <div
+                key={item.product.id}
+                className="flex items-center gap-4"
+              >
+                <img
+                  src={item.product.thumbnail}
+                  alt={item.product.title}
+                  className="h-16 w-16 rounded-lg bg-gray-50 object-contain"
+                />
+
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-gray-900">
+                    {item.product.title}
+                  </p>
+
+                  <p className="text-sm text-gray-500">
+                    რაოდენობა: {item.quantity} × $
+                    {item.product.price.toFixed(2)}
+                  </p>
+                </div>
+
+                <p className="font-semibold text-gray-900">
+                  $
+                  {(
+                    item.product.price * item.quantity
+                  ).toFixed(2)}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="border-t border-gray-200 pt-5">
+            <div className="flex items-center justify-between">
+              <span className="text-lg font-bold text-gray-900">
+                ჯამი
+              </span>
+
+              <span className="text-xl font-bold text-blue-600">
+                ${order.totalPrice.toFixed(2)}
+              </span>
+            </div>
+          </div>
+
+          <Link
+            to="/"
+            className="mt-6 inline-flex w-full justify-center rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700"
+          >
+            განაგრძეთ შოპინგი
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  // თუ კალათა ცარიელია, checkout ფორმა არ გამოჩნდეს
+  if (items.length === 0) {
+    return (
+      <main className="mx-auto max-w-2xl px-4 py-10 text-center">
+        <h1 className="text-2xl font-bold text-gray-900">
+          თქვენი კალათა ცარიელია
+        </h1>
+
+        <p className="mt-3 text-gray-600">
+          შეკვეთის გაფორმებამდე დაამატეთ პროდუქტები.
+        </p>
+
+        <Link
+          to="/"
+          className="mt-6 inline-flex rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700"
+        >
+          განაგრძეთ შოპინგი
+        </Link>
+      </main>
+    );
+  }
+
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-10">
@@ -165,6 +312,12 @@ function Checkout() {
                 component="p"
                 className={errorClass}
               />
+            </div>
+
+            <div className="rounded-lg bg-gray-50 p-4">
+              <p className="text-lg font-bold text-gray-900">
+                შეკვეთის ჯამური თანხა: ${totalPrice.toFixed(2)}
+              </p>
             </div>
 
             <button

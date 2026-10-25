@@ -8,6 +8,7 @@ type CartContextType = {
   addToCart: (product: Product, quantity: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
   removeFromCart: (productId: number) => void;
+  clearCart: () => void;
 };
 
 type CartProviderProps = {
@@ -79,9 +80,14 @@ export function CartProvider({ children }: CartProviderProps) {
     );
   }
 
+  // კალათის სრულად გასუფთავება
+  function clearCart() {
+    setItems([]);
+  }
+
   return (
     <CartContext.Provider
-      value={{ items, addToCart, updateQuantity, removeFromCart }}
+      value={{ items, addToCart, updateQuantity, removeFromCart, clearCart, }}
     >
       {children}
     </CartContext.Provider>
