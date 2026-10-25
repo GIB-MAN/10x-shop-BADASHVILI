@@ -1,5 +1,6 @@
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `text-sm font-medium transition-colors hover:text-blue-600 ${
@@ -8,6 +9,18 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 
 function Header() {
   const { username, isAuthenticated, logout } = useAuth();
+
+  const { items } = useCart();
+
+  // cartQuantity ვითვლის ყველა პროდუქტის რაოდენობის ჯამს
+  // თითოეული პროდუქციის რაოდენობის გათვალისწინებით
+
+  const cartQuantity = items.reduce(   
+    (total, item) => total + item.quantity,
+      0,
+    );
+
+
   return (
     <header className="border-b border-gray-200 bg-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
@@ -26,9 +39,25 @@ function Header() {
             Home
           </NavLink>
 
-          <NavLink to="/cart" className={navLinkClass}>
+          
+          <NavLink
+            to="/cart"
+            className={({ isActive }) =>
+              `inline-flex items-center gap-2 text-sm font-medium transition-colors hover:text-blue-600 ${
+                isActive ? "text-blue-600" : "text-gray-700"
+              }`
+            }
+          >
             Cart
+
+            <span
+              className="inline-flex min-w-5 items-center justify-center rounded-full bg-blue-600 px-1.5 py-0.5 text-xs font-bold text-white"
+              aria-label={`კალათაში ${cartQuantity} ერთეულია`}
+            >
+              {cartQuantity}
+            </span>
           </NavLink>
+
 
           {isAuthenticated ? (
             <div className="flex items-center gap-3">

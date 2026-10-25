@@ -2,9 +2,12 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import type { Product } from "../types";
+import { useCart } from "../context/CartContext";
 
 function ProductPage() {
   const { id } = useParams<{ id: string }>();
+
+  const { addToCart } = useCart();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -100,8 +103,7 @@ function ProductPage() {
           return;
         }
 
-        console.log("კალათაში დასამატებელი პროდუქტი:", product);
-        console.log("არჩეული რაოდენობა:", quantity);
+        addToCart(product, quantity);  // კალათში დავამატოთ არჩეული პროდუქცია რაოდენობით 
       }
 
 
@@ -154,7 +156,7 @@ function ProductPage() {
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         {/* მთავარი სურათი */}
         <div className="flex flex-col gap-4">
-          <div className="flex h-[420px] items-center justify-center overflow-hidden rounded-xl bg-gray-50">
+          <div className="flex h-105 items-center justify-center overflow-hidden rounded-xl bg-gray-50">
             <img
               src={selectedImage ?? product.thumbnail}
               alt={product.title}
