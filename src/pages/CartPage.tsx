@@ -1,6 +1,8 @@
 
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import QuantityPicker from "../components/QuantityPicker";
+import RemoveButton from "../components/RemoveButton";
 
 function CartPage() {
   const { items, updateQuantity, removeFromCart } = useCart();
@@ -63,53 +65,21 @@ function CartPage() {
                 ჯამი: ${(item.product.price * item.quantity).toFixed(2)}
               </p>
             </div>
-
+          
             <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={() =>
-                  updateQuantity(
-                    item.product.id,
-                    item.quantity - 1,
-                  )
+              <QuantityPicker
+                quantity={item.quantity}
+                maxQuantity={item.product.stock}
+                onQuantityChange={(quantity) =>
+                  updateQuantity(item.product.id, quantity)
                 }
-                disabled={item.quantity <= 1}
-                aria-label={`${item.product.title} რაოდენობის შემცირება`}
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-300 text-lg font-semibold hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                −
-              </button>
+              />
 
-              <span
-                aria-live="polite"
-                className="min-w-6 text-center font-semibold"
-              >
-                {item.quantity}
-              </span>
-
-              <button
-                type="button"
-                onClick={() =>
-                  updateQuantity(
-                    item.product.id,
-                    item.quantity + 1,
-                  )
-                }
-                disabled={item.quantity >= item.product.stock}
-                aria-label={`${item.product.title} რაოდენობის გაზრდა`}
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-300 text-lg font-semibold hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                +
-              </button>
-
-              <button
-                type="button"
-                onClick={() => removeFromCart(item.product.id)}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500"
-              >
-                წაშლა
-              </button>
+              <RemoveButton
+                onRemove={() => removeFromCart(item.product.id)}
+              />
             </div>
+
           </article>
         ))}
       </div>

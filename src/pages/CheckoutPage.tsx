@@ -4,6 +4,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useCart } from "../context/CartContext";
 import type { CartItem } from "../types";
+import PromoCodeForm from "../components/PromoCodeForm";
 
 interface CheckoutValues {
   fullName: string;
@@ -18,6 +19,9 @@ interface OrderConfirmation {
   address: string;
   city: string;
   items: CartItem[];
+  promoCode: string | null;
+  subtotal: number;
+  discount: number;
   totalPrice: number;
 }
 
@@ -49,7 +53,7 @@ const checkoutSchema = Yup.object({
 
 function Checkout() {
 
-  const { items, clearCart } = useCart();
+  const { items, clearCart, promoCode, subtotal, discount, total, applyPromoCode, removePromoCode, } = useCart();
 
   const [order, setOrder] = useState<OrderConfirmation | null>(null);
 
@@ -57,19 +61,16 @@ function Checkout() {
 
   const errorClass = "mt-1 text-sm text-red-600";
 
-  const totalPrice = items.reduce(
-    (total, item) =>
-      total + item.product.price * item.quantity,
-    0,
-  );
-
   const handleSubmit = ( values: CheckoutValues, ) => {
 
       // შეკვეთის მონაცემები შევინახოთ კალათის გასუფთავებამდე
     setOrder({
       ...values,
       items: items.map((item) => ({ ...item })),
-      totalPrice,
+      promoCode,
+      subtotal,
+      discount,
+      totalPrice: total,
     });
 
     // კალათის გასუფთავება
@@ -150,17 +151,36 @@ function Checkout() {
             ))}
           </div>
 
-          <div className="border-t border-gray-200 pt-5">
-            <div className="flex items-center justify-between">
-              <span className="text-lg font-bold text-gray-900">
-                ჯამი
-              </span>
-
-              <span className="text-xl font-bold text-blue-600">
-                ${order.totalPrice.toFixed(2)}
-              </span>
+          <div className="space-y-3 border-t border-gray-200 pt-5">
+            <div className="flex justify-between gap-4 text-gray-600">
+              <span>ჯამური თანხა</span>
+              <span>${order.subtotal.toFixed(2)}</span>
             </div>
-          </div>
+
+            {order.promoCode && (
+              <>
+                <div className="flex justify-between gap-4 text-sm text-green-700">
+                  <span>პრომოკოდი</span>
+                  <span>{order.promoCode.toUpperCase()}</span>
+                </div>
+
+                <div className="flex justify-between gap-4 text-green-700">
+                  <span>ფასდაკლება (10%)</span>
+                  <span>−${order.discount.toFixed(2)}</span>
+                </div>
+              </>
+            )}
+
+      <div className="flex justify-between gap-4 border-t border-gray-200 pt-3">
+        <span className="text-lg font-bold text-gray-900">
+          საბოლოო ჯამი
+        </span>
+
+        <span className="text-xl font-bold text-blue-600">
+          ${order.totalPrice.toFixed(2)}
+        </span>
+      </div>
+    </div>
 
           <Link
             to="/"
@@ -202,6 +222,12 @@ function Checkout() {
         შეკვეთა
       </h1>
 
+            <PromoCodeForm
+              onApply={applyPromoCode}
+              onRemove={removePromoCode}
+              appliedCode={promoCode}
+            />
+
       <Formik<CheckoutValues>
         initialValues={initialValues}
         validationSchema={checkoutSchema}
@@ -210,6 +236,7 @@ function Checkout() {
       >
         {({ isSubmitting, isValid, dirty, touched, errors }) => (
           <Form className="space-y-5" noValidate>
+
             <div>
               <label
                 htmlFor="fullName"
@@ -314,10 +341,35 @@ function Checkout() {
               />
             </div>
 
-            <div className="rounded-lg bg-gray-50 p-4">
-              <p className="text-lg font-bold text-gray-900">
-                შეკვეთის ჯამური თანხა: ${totalPrice.toFixed(2)}
-              </p>
+            <div className="space-y-3 rounded-lg bg-gray-50 p-4">
+              <div className="flex justify-between gap-4 text-gray-600">
+                <span>ჯამური თანხა</span>
+                <span>${subtotal.toFixed(2)}</span>
+              </div>
+
+              {promoCode && (
+                <>
+                  <div className="flex justify-between gap-4 text-sm text-green-700">
+                    <span>აქტიური პრომოკოდი</span>
+                    <span>{promoCode.toUpperCase()}</span>
+                  </div>
+
+                  <div className="flex justify-between gap-4 text-green-700">
+                    <span>ფასდაკლება (10%)</span>
+                    <span>−${discount.toFixed(2)}</span>
+                  </div>
+                </>
+              )}
+
+              <div className="flex justify-between gap-4 border-t border-gray-200 pt-3">
+                <span className="text-lg font-bold text-gray-900">
+                  გადასახდელი თანხა
+                </span>
+
+                <span className="text-xl font-bold text-blue-600">
+                  ${total.toFixed(2)}
+                </span>
+              </div>
             </div>
 
             <button
