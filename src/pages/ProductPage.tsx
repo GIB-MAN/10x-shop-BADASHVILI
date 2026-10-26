@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import type { Product } from "../types";
 import { useCart } from "../context/CartContext";
+import RelatedProducts from "../components/RelatedProducts";
 
 function ProductPage() {
   const { id } = useParams<{ id: string }>();
@@ -271,6 +272,13 @@ function ProductPage() {
 
         </div>
       </div>
+
+      <RelatedProducts
+        category={product.category}
+        currentProductId={product.id}
+      />
+
+
     </section>
   );
 }
