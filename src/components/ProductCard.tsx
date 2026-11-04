@@ -39,43 +39,60 @@ function ProductCard({ product }: ProductCardProps) {
 
             <div className="mt-2 flex items-center justify-between">
 
-             {product.brand && (
-              <span className="text-xs font-medium uppercase tracking-wide text-gray-500">
-                {product.brand}
-              </span>
-            )}
+              {product.brand && (
+                <span className="text-xs font-medium uppercase tracking-wide text-gray-500">
+                  {product.brand}
+                </span>
+              )}
 
-            <div
-              className="flex items-center gap-1"
-              aria-label={`Rating ${product.rating} out of 5`}
-            >
-              <span className="text-lg text-yellow-400">★</span>
-              <span className="text-sm font-semibold text-gray-700">
-                {product.rating.toFixed(1)}
-              </span>
-              <span className="text-xs text-gray-400">/ 5</span>
+              <div
+                className="flex items-center gap-1"
+                aria-label={`Rating ${product.rating} out of 5`}
+              >
+                <span className="text-lg text-yellow-400">★</span>
+                <span className="text-sm font-semibold text-gray-700">
+                  {product.rating.toFixed(1)}
+                </span>
+                <span className="text-xs text-gray-400">/ 5</span>
+              </div>
+
             </div>
 
-          </div>
+
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <p className="truncate text-sm text-gray-500">
+                Category: {product.category}
+              </p>
+
+              {product.stock === 0 ? (
+                <span className="shrink-0 text-xs font-semibold text-red-600">
+                  Out of stock
+                </span>
+              ) : product.stock <= 5 ? (
+                <span className="shrink-0 text-xs font-semibold text-orange-500">
+                  Only {product.stock} left!
+                </span>
+              ) : (
+                <span className="shrink-0 text-xs font-semibold text-green-600">
+                  In stock
+                </span>
+              )}
+            </div>
+          
 
 
-
-          <p className="mt-2 text-lg font-bold text-blue-600">
-            ${product.price.toFixed(2)}
-          </p>
-
-          <p className="mt-1 text-sm text-gray-500">
-            Category: {product.category}
-          </p>
         </div>
       </Link>
 
-      <div className="px-4 pb-4">
+      <div className="flex items-center justify-between gap-2 px-4 pb-4">
+        <p className="text-lg font-bold text-blue-600">
+            ${product.price.toFixed(2)}
+          </p>
         <button
           type="button"
           onClick={handleAddToCart}
           disabled={product.stock === 0}
-          className="inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-400"
+          className="shrink-0 rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-400"
         >
           {product.stock === 0 ? "Out of stock" : "Add to Cart"}
         </button>

@@ -37,7 +37,7 @@ function RelatedProducts({
         );
 
         if (!response.ok) {
-          throw new Error("მსგავსი პროდუქტების ჩატვირთვა ვერ მოხერხდა.");
+          throw new Error("Failed to load similar products.");
         }
 
         const data: { products: Product[] } = await response.json();
@@ -55,7 +55,7 @@ function RelatedProducts({
         setError(
           err instanceof Error
             ? err.message
-            : "დაფიქსირდა უცნობი შეცდომა.",
+            : "An unknown error occurred.",
         );
       } finally {
         if (!controller.signal.aborted) {
@@ -75,10 +75,10 @@ function RelatedProducts({
     return (
       <section className="mt-12" aria-busy="true">
         <h2 className="mb-6 text-2xl font-bold text-gray-900">
-          მსგავსი პროდუქტები
+          Similar Products
         </h2>
         <p role="status" className="text-gray-600">
-          მსგავსი პროდუქტები იტვირთება...
+          Loading similar products...
         </p>
       </section>
     );
@@ -88,7 +88,7 @@ function RelatedProducts({
     return (
       <section className="mt-12">
         <h2 className="mb-4 text-2xl font-bold text-gray-900">
-          მსგავსი პროდუქტები
+          Similar Products
         </h2>
         <p role="alert" className="text-sm text-red-600">
           {error}
@@ -104,7 +104,7 @@ function RelatedProducts({
   return (
     <section className="mt-12">
       <h2 className="mb-6 text-2xl font-bold text-gray-900">
-        მსგავსი პროდუქტები
+        Similar Products
       </h2>
 
       <ProductGrid products={products} />

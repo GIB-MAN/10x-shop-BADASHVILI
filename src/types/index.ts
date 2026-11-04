@@ -10,6 +10,15 @@ export type Product = {
   category: string;     // პროდუქტის კატეგორია
   rating: number;       // პროდუქტის რეიტინგი
   brand?: string;       // პროდუქტის ბრენდი
+  reviews?: ProductReview[]; // პროდუქტის მიმოხილვების მასივი, შეიძლება არ არსებობდეს
+};
+
+export type ProductReview = {
+  rating: number;
+  comment: string;
+  date: string;
+  reviewerName: string;
+  reviewerEmail?: string;
 };
 
 export type ProductsResponse = {

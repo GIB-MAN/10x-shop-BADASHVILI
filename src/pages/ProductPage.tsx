@@ -14,6 +14,7 @@ function ProductPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"description" | "reviews">("description");
 
   // მომხმარებლის მიერ არჩეული thumbnail სურათების სტეიტი
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -198,106 +199,220 @@ function ProductPage() {
           {/* /////  thumbnail სურატების ჩასმა თუ ისინი არსებობს. end*/}
         </div>
 
-        <div className="flex flex-col">
-          <p className="text-sm font-semibold uppercase tracking-wide text-blue-600">
-            {product.category}
-          </p>
 
-          <h1 className="mt-3 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-            {product.title}
-          </h1>
+<div className="flex flex-col">
+  {/* Product title */}
+  <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+    {product.title}
+  </h1>
 
-          <div className="mt-3 flex items-center gap-4">
+  {/* Brand and Category */}
+  <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+    {product.brand && (
+      <span className="font-medium text-gray-600">
+        {product.brand}
+      </span>
+    )}
 
-            {product.brand && (
-              <span className="text-xs font-medium uppercase tracking-wide text-gray-500">
-              Brand: {product.brand}
-              </span>
-            )}
+    {product.brand && (
+      <span className="text-gray-300">•</span>
+    )}
 
-            <div
-              className="flex items-center gap-1"
-              aria-label={`Rating ${product.rating} out of 5`}
-            >
-              <span className="text-lg text-yellow-400">★</span>
+    <Link
+      to={`/?category=${encodeURIComponent(product.category)}`}
+      className="font-medium text-blue-600 hover:text-blue-800 hover:underline"
+    >
+      {product.category}
+    </Link>
+  </div>
 
-              <span className="text-sm font-semibold text-gray-700">
-                {product.rating.toFixed(1)}
-              </span>
+  {/* Price and Add to Cart */}
+  <div className="mt-6 flex flex-wrap items-center gap-3">
+    <p className="text-3xl font-bold text-blue-600">
+      ${product.price.toFixed(2)}
+    </p>
 
-              <span className="text-xs text-gray-400">
-                / 5
-              </span>
-            </div>
-          </div>
+    <div className="flex items-center gap-2">
+      {/* Quantity stepper */}
+      <div className="flex items-center rounded-lg border border-gray-300">
+        <button
+          type="button"
+          onClick={decreaseQuantity}
+          disabled={product.stock === 0 || quantity <= 1}
+          aria-label="Decrease quantity"
+          className="flex h-9 w-9 items-center justify-center text-lg hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          −
+        </button>
 
-          <p className="mt-5 leading-7 text-gray-600">
-            {product.description}
-          </p>
+        <span
+          aria-live="polite"
+          className="min-w-8 text-center text-sm font-semibold"
+        >
+          {quantity}
+        </span>
 
-          <p className="mt-6 text-3xl font-bold text-blue-600">
-            ${product.price.toFixed(2)}
-          </p>
-
-          <p className="mt-4 text-sm text-gray-600">
-            Product ID: {product.id}
-          </p>
-
-          <p className="mt-2 text-sm text-gray-600">
-            In Stock: {product.stock} units
-          </p>
-
-
-          {/* პროდუქტის რაოდენობის არჩევა. start */}
-          <div className="mt-6">
-            <p className="mb-2 text-sm font-medium text-gray-700">
-              Quantity
-            </p>
-
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={decreaseQuantity}
-                disabled={product.stock === 0 || quantity <= 1}
-                aria-label="რაოდენობის შემცირება"
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 text-lg font-semibold hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                -
-              </button>
-
-              <span
-                aria-live="polite"
-                className="min-w-8 text-center font-semibold"
-              >
-                {quantity}
-              </span>
-
-              <button
-                type="button"
-                onClick={increaseQuantity}
-                disabled={product.stock === 0 || quantity >= product.stock}
-                aria-label="Quantity increase"
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 text-lg font-semibold hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                +
-              </button>
-            </div>
-          </div>
-
-          {/* კალათაში დამატება */}
-          <button
-            type="button"
-            onClick={handleAddToCart}
-            disabled={product.stock === 0}
-            className="mt-6 w-full rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-400"
-          >
-            {product.stock === 0 ? "Out of stock" : "Add to Cart"}
-          </button>
-
-           {/* პროდუქტის რაოდენობის არჩევა. end*/}
-
-        </div>
+        <button
+          type="button"
+          onClick={increaseQuantity}
+          disabled={product.stock === 0 || quantity >= product.stock}
+          aria-label="Increase quantity"
+          className="flex h-9 w-9 items-center justify-center text-lg hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          +
+        </button>
       </div>
+
+      {/* Add to Cart */}
+      <button
+        type="button"
+        onClick={handleAddToCart}
+        disabled={product.stock === 0}
+        className="shrink-0 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-400"
+      >
+        {product.stock === 0 ? "Out of stock" : "Add to Cart"}
+      </button>
+    </div>
+  </div>
+
+  {/* Rating */}
+  <div className="mt-4 flex items-center gap-2">
+    <span className="text-lg text-yellow-400">★</span>
+    <span className="text-sm font-semibold text-gray-700">
+      {product.rating.toFixed(1)}
+    </span>
+    <span className="text-sm text-gray-400">
+      / 5
+    </span>
+  </div>
+
+  {/* Stock status */}
+  <div className="mt-3">
+    {product.stock === 0 ? (
+      <span className="text-sm font-semibold text-red-600">
+        Out of stock
+      </span>
+    ) : product.stock <= 5 ? (
+      <span className="text-sm font-semibold text-orange-500">
+        Only {product.stock} left!
+      </span>
+    ) : (
+      <span className="text-sm font-semibold text-green-600">
+        In stock
+      </span>
+    )}
+  </div>
+
+  {/* Description */}
+  <p className="mt-5 leading-7 text-gray-600">
+    {product.description}
+  </p>
+</div>
+
+      </div>
+
+
+
+{/* Product Tabs */}
+<div className="mt-12 border-t border-gray-200 pt-6">
+
+  {/* Tab buttons */}
+  <div className="flex gap-6 border-b border-gray-200">
+
+    <button
+      type="button"
+      onClick={() => setActiveTab("description")}
+      className={`pb-3 text-sm font-semibold transition-colors ${
+        activeTab === "description"
+          ? "border-b-2 border-blue-600 text-blue-600"
+          : "text-gray-500 hover:text-gray-800"
+      }`}
+      aria-selected={activeTab === "description"}
+      role="tab"
+    >
+      Description
+    </button>
+
+    <button
+      type="button"
+      onClick={() => setActiveTab("reviews")}
+      className={`pb-3 text-sm font-semibold transition-colors ${
+        activeTab === "reviews"
+          ? "border-b-2 border-blue-600 text-blue-600"
+          : "text-gray-500 hover:text-gray-800"
+      }`}
+      aria-selected={activeTab === "reviews"}
+      role="tab"
+    >
+      Reviews ({product.reviews?.length ?? 0})
+    </button>
+
+  </div>
+
+  {/* Tab content */}
+  <div className="py-6">
+
+    {activeTab === "description" && (
+      <div role="tabpanel">
+        <h2 className="mb-3 text-lg font-semibold text-gray-900">
+          Product Description
+        </h2>
+
+        <p className="max-w-3xl leading-7 text-gray-600">
+          {product.description}
+        </p>
+      </div>
+    )}
+
+    {activeTab === "reviews" && (
+      <div role="tabpanel">
+        <h2 className="mb-3 text-lg font-semibold text-gray-900">
+          Customer Reviews
+        </h2>
+
+        {product.reviews && product.reviews.length > 0 ? (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {product.reviews.map((review, index) => (
+              <div
+                key={`${review.reviewerName}-${index}`}
+                className="h-full rounded-lg border border-gray-200 p-4"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+
+                  <p className="font-semibold text-gray-800">
+                    {review.reviewerName}
+                  </p>
+
+                  <span className="text-sm text-yellow-500">
+                    {"★".repeat(review.rating)}
+                  </span>
+
+                </div>
+
+                <p className="mt-2 text-sm leading-6 text-gray-600">
+                  {review.comment}
+                </p>
+
+                <p className="mt-2 text-xs text-gray-400">
+                  {new Date(review.date).toLocaleDateString()}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500">
+            No reviews yet.
+          </p>
+        )}
+      </div>
+    )}
+
+  </div>
+</div>
+
+
+
+
 
       <RelatedProducts
         category={product.category}
