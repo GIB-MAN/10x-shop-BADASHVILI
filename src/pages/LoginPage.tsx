@@ -1,6 +1,6 @@
 
 import { useState, type FormEvent } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import type { LoginFormValues } from "../types";
 import { useAuth } from "../context/AuthContext";
 
@@ -10,7 +10,10 @@ function LoginPage() {
     password: "",
   });
 
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({
+    username: "",
+    password: "",
+  });
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -33,8 +36,24 @@ function LoginPage() {
     const username = form.username.trim();
     const password = form.password;
 
-    if (!username || !password.trim()) {
-      setError("Fill in both fields.");
+    const newErrors = {
+      username: "",
+      password: "",
+    };
+
+if (!username) {
+      newErrors.username = "Username is required";
+    }
+
+    if (!password.trim()) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+
+    setErrors(newErrors);
+
+    if (newErrors.username || newErrors.password) {
       return;
     }
 
@@ -57,7 +76,7 @@ function LoginPage() {
         Login is a required condition for making purchases.
       </p>
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+      <form onSubmit={handleSubmit} className="mt-6 space-y-5" noValidate>
         <div>
           <label
             htmlFor="username"
@@ -74,8 +93,24 @@ function LoginPage() {
             value={form.username}
             onChange={handleChange}
             required
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+            aria-invalid={!!errors.username}
+            aria-describedby={errors.username ? "username-error" : undefined}
+            className={`w-full rounded-lg border px-3 py-2 outline-none focus:ring-2 ${
+              errors.username
+                ? "border-red-500 focus:border-red-500 focus:ring-red-100"
+                : "border-gray-300 focus:border-blue-600 focus:ring-blue-100"
+            }`}
           />
+
+          {errors.username && (
+            <p
+              id="username-error"
+              role="alert"
+              className="mt-1 text-sm text-red-600"
+            >
+              {errors.username}
+            </p>
+          )}
         </div>
 
         <div>
@@ -94,15 +129,25 @@ function LoginPage() {
             value={form.password}
             onChange={handleChange}
             required
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+            aria-invalid={!!errors.password}
+            aria-describedby={errors.password ? "password-error" : undefined}
+            className={`w-full rounded-lg border px-3 py-2 outline-none focus:ring-2 ${
+              errors.password
+                ? "border-red-500 focus:border-red-500 focus:ring-red-100"
+                : "border-gray-300 focus:border-blue-600 focus:ring-blue-100"
+            }`}
           />
-        </div>
 
-        {error && (
-          <p role="alert" className="text-sm text-red-600">
-            {error}
-          </p>
-        )}
+          {errors.password && (
+            <p
+              id="password-error"
+              role="alert"
+              className="mt-1 text-sm text-red-600"
+            >
+              {errors.password}
+            </p>
+          )}
+        </div>
 
         <button
           type="submit"
@@ -111,6 +156,16 @@ function LoginPage() {
           Login
         </button>
       </form>
+      
+      <div className="mt-5 text-center">
+        <Link
+          to="/"
+          className="text-sm font-medium text-blue-600 hover:text-blue-800"
+        >
+          ← Back to catalog
+        </Link>
+      </div>
+
     </section>
   );
 }
