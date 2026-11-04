@@ -1,12 +1,20 @@
 
 import { Link } from "react-router-dom";
 import type { Product } from "../types";
+import { useCart } from "../context/CartContext";
 
 type ProductCardProps = {
   product: Product;
 };
 
 function ProductCard({ product }: ProductCardProps) {
+  
+  const { addToCart } = useCart();
+
+  function handleAddToCart() {
+    addToCart(product, 1);
+  }
+
   return (
     <article className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md">
       <Link
@@ -57,18 +65,20 @@ function ProductCard({ product }: ProductCardProps) {
           </p>
 
           <p className="mt-1 text-sm text-gray-500">
-            კატეგორია: {product.category}
+            Category: {product.category}
           </p>
         </div>
       </Link>
 
       <div className="px-4 pb-4">
-        <Link
-          to={`/products/${product.id}`}
-          className="inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          disabled={product.stock === 0}
+          className="inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-400"
         >
-          დეტალების ნახვა
-        </Link>
+          {product.stock === 0 ? "Out of stock" : "Add to Cart"}
+        </button>
       </div>
     </article>
   );
