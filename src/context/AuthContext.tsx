@@ -1,3 +1,4 @@
+import { useCart } from "./CartContext";
 
 import {
   createContext,
@@ -22,11 +23,14 @@ type AuthProviderProps = {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [username, setUsername] = useState<string | null>(null);
 
+  const { clearCart } = useCart();
+
   const login = (value: string) => {
     setUsername(value);
   };
 
   const logout = () => {
+    clearCart();
     setUsername(null);
   };
 
