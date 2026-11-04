@@ -36,7 +36,7 @@ function Header() {
           className="flex items-center gap-4 sm:gap-6"
         >
           <NavLink to="/" end className={navLinkClass}>
-            Home
+            Catalog
           </NavLink>
 
           
@@ -70,12 +70,12 @@ function Header() {
                 onClick={logout}
                 className="text-sm font-medium text-gray-700 transition-colors hover:text-blue-600"
               >
-                Logout
+                Log out
               </button>
             </div>
           ) : (
             <NavLink to="/login" className={navLinkClass}>
-              Login
+              Log in
             </NavLink>
           )}
         </nav>

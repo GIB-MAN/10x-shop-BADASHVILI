@@ -20,7 +20,7 @@ function ProductCard({ product }: ProductCardProps) {
       <Link
         to={`/products/${product.id}`}
         className="block focus:outline-none focus:ring-2 focus:ring-blue-500"
-        aria-label={`ნახე პროდუქტი: ${product.title}`}
+        aria-label={`View product: ${product.title}`}
       >
         <div className="aspect-square overflow-hidden bg-gray-100">
           <img
@@ -47,7 +47,7 @@ function ProductCard({ product }: ProductCardProps) {
 
             <div
               className="flex items-center gap-1"
-              aria-label={`რეიტინგი ${product.rating} ხუთიდან`}
+              aria-label={`Rating ${product.rating} out of 5`}
             >
               <span className="text-lg text-yellow-400">★</span>
               <span className="text-sm font-semibold text-gray-700">

@@ -113,7 +113,7 @@ function ProductPage() {
     return (
       <section className="py-16 text-center">
         <p role="status" className="text-gray-600">
-          პროდუქტი იტვირთება...
+          Product is loading...
         </p>
       </section>
     );
@@ -127,11 +127,11 @@ function ProductPage() {
           className="rounded-xl border border-red-200 bg-red-50 p-6"
         >
           <h1 className="text-xl font-bold text-red-700">
-            პროდუქტის ჩატვირთვის პრობლემა
+            Product loading issue
           </h1>
 
           <p className="mt-2 text-red-600">
-            {error ?? "პროდუქტი ვერ მოიძებნა."}
+            {error ?? "Product not found."}
           </p>
         </div>
 
@@ -139,7 +139,7 @@ function ProductPage() {
           to="/"
           className="mt-6 inline-flex rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
-          კატალოგში დაბრუნება
+          Back to Catalog
         </Link>
       </section>
     );
@@ -151,7 +151,7 @@ function ProductPage() {
         to="/"
         className="mb-6 inline-flex text-sm font-medium text-blue-600 hover:text-blue-800 focus:outline-none focus:underline"
       >
-        ← კატალოგში დაბრუნება
+        ← Back to Catalog
       </Link>
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
@@ -215,7 +215,7 @@ function ProductPage() {
 
             <div
               className="flex items-center gap-1"
-              aria-label={`რეიტინგი ${product.rating} ხუთიდან`}
+              aria-label={`Rating ${product.rating} out of 5`}
             >
               <span className="text-lg text-yellow-400">★</span>
 
@@ -238,18 +238,18 @@ function ProductPage() {
           </p>
 
           <p className="mt-4 text-sm text-gray-600">
-            პროდუქტის ID: {product.id}
+            Product ID: {product.id}
           </p>
 
           <p className="mt-2 text-sm text-gray-600">
-            მარაგში: {product.stock} ერთეული
+            In Stock: {product.stock} units
           </p>
 
 
           {/* პროდუქტის რაოდენობის არჩევა. start */}
           <div className="mt-6">
             <p className="mb-2 text-sm font-medium text-gray-700">
-              რაოდენობა
+              Quantity
             </p>
 
             <div className="flex items-center gap-3">
@@ -260,7 +260,7 @@ function ProductPage() {
                 aria-label="რაოდენობის შემცირება"
                 className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 text-lg font-semibold hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                −
+                -
               </button>
 
               <span
@@ -274,7 +274,7 @@ function ProductPage() {
                 type="button"
                 onClick={increaseQuantity}
                 disabled={product.stock === 0 || quantity >= product.stock}
-                aria-label="რაოდენობის გაზრდა"
+                aria-label="Quantity increase"
                 className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 text-lg font-semibold hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 +
@@ -289,7 +289,7 @@ function ProductPage() {
             disabled={product.stock === 0}
             className="mt-6 w-full rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-400"
           >
-            {product.stock === 0 ? "Out of stock" : "კალათაში დამატება"}
+            {product.stock === 0 ? "Out of stock" : "Add to Cart"}
           </button>
 
            {/* პროდუქტის რაოდენობის არჩევა. end*/}
