@@ -8,6 +8,7 @@ export type Product = {
   thumbnail: string;    // პროდუქტის მთავარი სურათის URL
   images: string[];     // პროდუქტის ყველა სურათის URL-ების მასივი
   category: string;     // პროდუქტის კატეგორია
+  rating: number;       // პროდუქტის რეიტინგი
 };
 
 export type ProductsResponse = {

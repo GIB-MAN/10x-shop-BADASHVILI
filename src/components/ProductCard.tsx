@@ -28,6 +28,22 @@ function ProductCard({ product }: ProductCardProps) {
             {product.title}
           </h2>
 
+
+        <div
+          className="flex items-center gap-1"
+          aria-label={`რეიტინგი ${product.rating} ხუთიდან`}
+        >
+          <span className="text-lg text-yellow-400">★</span>
+          <span className="text-sm font-semibold text-gray-700">
+            {product.rating.toFixed(1)}
+          </span>
+          <span className="text-xs text-gray-400">
+            / 5
+          </span>
+        </div>
+
+
+
           <p className="mt-2 text-lg font-bold text-blue-600">
             ${product.price.toFixed(2)}
           </p>
