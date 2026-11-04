@@ -35,20 +35,20 @@ const initialValues: CheckoutValues = {
 const checkoutSchema = Yup.object({
   fullName: Yup.string()
     .trim()
-    .required("სრული სახელი სავალდებულოა"),
+    .required("Full name is required"),
 
   email: Yup.string()
     .trim()
-    .email("გთხოვთ, შეიყვანოთ ელფოსტის სწორი მისამართი")
-    .required("ელფოსტა აუცილებელია"),
+    .email("Please enter a valid email address")
+    .required("Email is required"),
 
   address: Yup.string()
     .trim()
-    .required("მისამართი აუცილებელია"),
+    .required("Address is required"),
 
   city: Yup.string()
     .trim()
-    .required("ქალაქი აუცილებელია"),
+    .required("City is required"),
 });
 
 function Checkout() {
@@ -88,35 +88,35 @@ function Checkout() {
             </div>
 
             <h1 className="text-3xl font-bold text-gray-900">
-              გმადლობთ შეკვეთისთვის!
+              Thank you for your order!
             </h1>
 
             <p className="mt-3 text-gray-600">
-              თქვენი შეკვეთა წარმატებით განთავსდა.
+              Your order has been placed successfully.
             </p>
           </div>
 
           <div className="space-y-2 border-b border-gray-200 pb-5">
             <h2 className="text-lg font-semibold text-gray-900">
-              შეკვეთის დეტალები
+              Order Details
             </h2>
 
             <p className="text-gray-600">
-              სახელი: {order.fullName}
+              Name: {order.fullName}
             </p>
 
             <p className="text-gray-600">
-              ელფოსტა: {order.email}
+              Email: {order.email}
             </p>
 
             <p className="text-gray-600">
-              მისამართი: {order.address}, {order.city}
+              Address: {order.address}, {order.city}
             </p>
           </div>
 
           <div className="space-y-4 py-5">
             <h2 className="text-lg font-semibold text-gray-900">
-              შეკვეთის შეჯამება
+              Order Summary
             </h2>
 
             {order.items.map((item) => (
@@ -136,7 +136,7 @@ function Checkout() {
                   </p>
 
                   <p className="text-sm text-gray-500">
-                    რაოდენობა: {item.quantity} × $
+                    Quantity: {item.quantity} × $
                     {item.product.price.toFixed(2)}
                   </p>
                 </div>
@@ -153,19 +153,19 @@ function Checkout() {
 
           <div className="space-y-3 border-t border-gray-200 pt-5">
             <div className="flex justify-between gap-4 text-gray-600">
-              <span>ჯამური თანხა</span>
+              <span>Total</span>
               <span>${order.subtotal.toFixed(2)}</span>
             </div>
 
             {order.promoCode && (
               <>
                 <div className="flex justify-between gap-4 text-sm text-green-700">
-                  <span>პრომოკოდი</span>
+                  <span>Promo code</span>
                   <span>{order.promoCode.toUpperCase()}</span>
                 </div>
 
                 <div className="flex justify-between gap-4 text-green-700">
-                  <span>ფასდაკლება (10%)</span>
+                  <span>Discount (10%)</span>
                   <span>−${order.discount.toFixed(2)}</span>
                 </div>
               </>
@@ -173,7 +173,7 @@ function Checkout() {
 
       <div className="flex justify-between gap-4 border-t border-gray-200 pt-3">
         <span className="text-lg font-bold text-gray-900">
-          საბოლოო ჯამი
+          Total
         </span>
 
         <span className="text-xl font-bold text-blue-600">
@@ -186,7 +186,7 @@ function Checkout() {
             to="/"
             className="mt-6 inline-flex w-full justify-center rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700"
           >
-            განაგრძეთ შოპინგი
+            Continue shopping
           </Link>
         </div>
       </main>
@@ -198,18 +198,18 @@ function Checkout() {
     return (
       <main className="mx-auto max-w-2xl px-4 py-10 text-center">
         <h1 className="text-2xl font-bold text-gray-900">
-          თქვენი კალათა ცარიელია
+          Your cart is empty
         </h1>
 
         <p className="mt-3 text-gray-600">
-          შეკვეთის გაფორმებამდე დაამატეთ პროდუქტები.
+          Add some items to your cart before checking out.
         </p>
 
         <Link
           to="/"
           className="mt-6 inline-flex rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700"
         >
-          განაგრძეთ შოპინგი
+          Continue shopping
         </Link>
       </main>
     );
@@ -219,7 +219,7 @@ function Checkout() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-10">
       <h1 className="mb-6 text-3xl font-bold text-gray-900">
-        შეკვეთა
+        Checkout
       </h1>
 
             <PromoCodeForm
@@ -242,7 +242,7 @@ function Checkout() {
                 htmlFor="fullName"
                 className="mb-2 block text-sm font-medium text-gray-700"
               >
-                სახელი
+                Name
               </label>
 
               <Field
@@ -255,7 +255,7 @@ function Checkout() {
                     ? "border-red-500 focus:border-red-500 focus:ring-red-200"
                     : ""
                 }`}
-                placeholder="შეიყვანეთ თქვენი სრული სახელი"
+                placeholder="Enter your full name"
               />
 
               <ErrorMessage
@@ -270,7 +270,7 @@ function Checkout() {
                 htmlFor="email"
                 className="mb-2 block text-sm font-medium text-gray-700"
               >
-                ელფოსტა
+                Email
               </label>
 
               <Field
@@ -298,7 +298,7 @@ function Checkout() {
                 htmlFor="address"
                 className="mb-2 block text-sm font-medium text-gray-700"
               >
-                მისამართი
+                Address
               </label>
 
               <Field
@@ -307,7 +307,7 @@ function Checkout() {
                 type="text"
                 autoComplete="street-address"
                 className={inputClass}
-                placeholder="ქუჩა და სახლის ნომერი"
+                placeholder="Street and house number"
               />
 
               <ErrorMessage
@@ -322,7 +322,7 @@ function Checkout() {
                 htmlFor="city"
                 className="mb-2 block text-sm font-medium text-gray-700"
               >
-                ქალაქი
+                City
               </label>
 
               <Field
@@ -331,7 +331,7 @@ function Checkout() {
                 type="text"
                 autoComplete="address-level2"
                 className={inputClass}
-                placeholder="შეიყვანეთ თქვენი ქალაქი"
+                placeholder="Enter your city"
               />
 
               <ErrorMessage
@@ -343,19 +343,19 @@ function Checkout() {
 
             <div className="space-y-3 rounded-lg bg-gray-50 p-4">
               <div className="flex justify-between gap-4 text-gray-600">
-                <span>ჯამური თანხა</span>
+                <span>Total</span>
                 <span>${subtotal.toFixed(2)}</span>
               </div>
 
               {promoCode && (
                 <>
                   <div className="flex justify-between gap-4 text-sm text-green-700">
-                    <span>აქტიური პრომოკოდი</span>
+                    <span>Promo code</span>
                     <span>{promoCode.toUpperCase()}</span>
                   </div>
 
                   <div className="flex justify-between gap-4 text-green-700">
-                    <span>ფასდაკლება (10%)</span>
+                    <span>Discount (10%)</span>
                     <span>−${discount.toFixed(2)}</span>
                   </div>
                 </>
@@ -363,7 +363,7 @@ function Checkout() {
 
               <div className="flex justify-between gap-4 border-t border-gray-200 pt-3">
                 <span className="text-lg font-bold text-gray-900">
-                  გადასახდელი თანხა
+                  Total Amount
                 </span>
 
                 <span className="text-xl font-bold text-blue-600">
@@ -377,7 +377,7 @@ function Checkout() {
               disabled={!isValid || !dirty || isSubmitting}
               className="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              შეკვეთის გაფორმება
+              Place Order
             </button>
           </Form>
         )}

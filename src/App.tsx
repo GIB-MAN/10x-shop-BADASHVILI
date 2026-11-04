@@ -18,7 +18,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/products/:id" element={<ProductPage />} />
         <Route path="/cart" element={<CartPage />} />
-
+        <Route path="/not-found" element={<NotFoundPage />} />
+        
         <Route element={<ProtectedRoute />}>
             <Route path="/checkout" element={<CheckoutPage />} />
         </Route>

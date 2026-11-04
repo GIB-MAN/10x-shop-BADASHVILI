@@ -1,11 +1,12 @@
 
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import type { Product } from "../types";
 import { useCart } from "../context/CartContext";
 import RelatedProducts from "../components/RelatedProducts";
 
 function ProductPage() {
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
   const { addToCart } = useCart();
@@ -43,7 +44,8 @@ function ProductPage() {
         );
 
         if (response.status === 404) {
-          throw new Error("ასეთი პროდუქტი ვერ მოიძებნა.");
+          navigate("/not-found", { replace: true });
+          return;
         }
 
         if (!response.ok) {

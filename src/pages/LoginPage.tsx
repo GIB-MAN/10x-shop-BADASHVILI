@@ -34,7 +34,7 @@ function LoginPage() {
     const password = form.password;
 
     if (!username || !password.trim()) {
-      setError("შეავსე ორივე ველი.");
+      setError("Fill in both fields.");
       return;
     }
 
@@ -54,7 +54,7 @@ function LoginPage() {
       <h1 className="text-2xl font-bold">Login</h1>
 
       <p className="mt-2 text-gray-600">
-        დალოგინება აუცილებელი პირობაა ყიდვის განსახორციელებლად.
+        Login is a required condition for making purchases.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-5">
@@ -63,7 +63,7 @@ function LoginPage() {
             htmlFor="username"
             className="mb-1 block text-sm font-medium text-gray-700"
           >
-            მომხმარებლის სახელი
+            Username
           </label>
 
           <input
@@ -83,7 +83,7 @@ function LoginPage() {
             htmlFor="password"
             className="mb-1 block text-sm font-medium text-gray-700"
           >
-            პაროლი
+            Password
           </label>
 
           <input
@@ -108,7 +108,7 @@ function LoginPage() {
           type="submit"
           className="w-full rounded-lg bg-blue-600 px-4 py-2.5 font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
-          შესვლა
+          Login
         </button>
       </form>
     </section>
