@@ -205,6 +205,30 @@ function ProductPage() {
             {product.title}
           </h1>
 
+          <div className="mt-3 flex items-center gap-4">
+
+            {product.brand && (
+              <span className="text-xs font-medium uppercase tracking-wide text-gray-500">
+              Brand: {product.brand}
+              </span>
+            )}
+
+            <div
+              className="flex items-center gap-1"
+              aria-label={`რეიტინგი ${product.rating} ხუთიდან`}
+            >
+              <span className="text-lg text-yellow-400">★</span>
+
+              <span className="text-sm font-semibold text-gray-700">
+                {product.rating.toFixed(1)}
+              </span>
+
+              <span className="text-xs text-gray-400">
+                / 5
+              </span>
+            </div>
+          </div>
+
           <p className="mt-5 leading-7 text-gray-600">
             {product.description}
           </p>

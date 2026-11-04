@@ -9,6 +9,7 @@ export type Product = {
   images: string[];     // პროდუქტის ყველა სურათის URL-ების მასივი
   category: string;     // პროდუქტის კატეგორია
   rating: number;       // პროდუქტის რეიტინგი
+  brand?: string;       // პროდუქტის ბრენდი
 };
 
 export type ProductsResponse = {

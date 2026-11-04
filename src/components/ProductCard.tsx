@@ -29,18 +29,26 @@ function ProductCard({ product }: ProductCardProps) {
           </h2>
 
 
-        <div
-          className="flex items-center gap-1"
-          aria-label={`რეიტინგი ${product.rating} ხუთიდან`}
-        >
-          <span className="text-lg text-yellow-400">★</span>
-          <span className="text-sm font-semibold text-gray-700">
-            {product.rating.toFixed(1)}
-          </span>
-          <span className="text-xs text-gray-400">
-            / 5
-          </span>
-        </div>
+            <div className="mt-2 flex items-center justify-between">
+
+             {product.brand && (
+              <span className="text-xs font-medium uppercase tracking-wide text-gray-500">
+                {product.brand}
+              </span>
+            )}
+
+            <div
+              className="flex items-center gap-1"
+              aria-label={`რეიტინგი ${product.rating} ხუთიდან`}
+            >
+              <span className="text-lg text-yellow-400">★</span>
+              <span className="text-sm font-semibold text-gray-700">
+                {product.rating.toFixed(1)}
+              </span>
+              <span className="text-xs text-gray-400">/ 5</span>
+            </div>
+
+          </div>
 
 
 
