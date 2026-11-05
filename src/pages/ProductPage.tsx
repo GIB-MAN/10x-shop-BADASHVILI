@@ -4,6 +4,7 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import type { Product } from "../types";
 import { useCart } from "../context/CartContext";
 import RelatedProducts from "../components/RelatedProducts";
+import { discountedPrice, formatPrice } from "../utils/price";
 
 function ProductPage() {
   const navigate = useNavigate();
@@ -228,86 +229,111 @@ function ProductPage() {
 
   {/* Price and Add to Cart */}
   <div className="mt-6 flex flex-wrap items-center gap-3">
-    <p className="text-3xl font-bold text-blue-600">
-      ${product.price.toFixed(2)}
-    </p>
+    <span className="text-3xl font-bold text-blue-600">
+        {formatPrice(
+          discountedPrice(product.price, product.discountPercentage)
+        )}
+      </span>
 
-    <div className="flex items-center gap-2">
-      {/* Quantity stepper */}
-      <div className="flex items-center rounded-lg border border-gray-300">
-        <button
-          type="button"
-          onClick={decreaseQuantity}
-          disabled={product.stock === 0 || quantity <= 1}
-          aria-label="Decrease quantity"
-          className="flex h-9 w-9 items-center justify-center text-lg hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          −
-        </button>
+      <span className="text-lg text-gray-400 line-through">
+        {formatPrice(product.price)}
+      </span>
 
-        <span
-          aria-live="polite"
-          className="min-w-8 text-center text-sm font-semibold"
-        >
-          {quantity}
-        </span>
+      <span className="rounded-md bg-red-50 px-2 py-1 text-sm font-semibold text-red-600">
+        -{product.discountPercentage.toFixed(0)}%
+      </span>
 
-        <button
-          type="button"
-          onClick={increaseQuantity}
-          disabled={product.stock === 0 || quantity >= product.stock}
-          aria-label="Increase quantity"
-          className="flex h-9 w-9 items-center justify-center text-lg hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          +
-        </button>
-      </div>
-
-      {/* Add to Cart */}
-      <button
-        type="button"
-        onClick={handleAddToCart}
-        disabled={product.stock === 0}
-        className="shrink-0 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-400"
-      >
-        {product.stock === 0 ? "Out of stock" : "Add to Cart"}
-      </button>
-    </div>
+    
   </div>
 
   {/* Rating */}
-  <div className="mt-4 flex items-center gap-2">
-    <span className="text-lg text-yellow-400">★</span>
-    <span className="text-sm font-semibold text-gray-700">
-      {product.rating.toFixed(1)}
-    </span>
-    <span className="text-sm text-gray-400">
-      / 5
-    </span>
-  </div>
+        <div className="mt-4 flex items-center gap-2">
 
-  {/* Stock status */}
-  <div className="mt-3">
-    {product.stock === 0 ? (
-      <span className="text-sm font-semibold text-red-600">
-        Out of stock
-      </span>
-    ) : product.stock <= 5 ? (
-      <span className="text-sm font-semibold text-orange-500">
-        Only {product.stock} left!
-      </span>
-    ) : (
-      <span className="text-sm font-semibold text-green-600">
-        In stock
-      </span>
-    )}
-  </div>
+          <span className="text-lg text-yellow-400">★</span>
 
-  {/* Description */}
-  <p className="mt-5 leading-7 text-gray-600">
-    {product.description}
-  </p>
-</div>
+          <span className="text-sm font-semibold text-gray-700">
+            {product.rating.toFixed(1)}
+          </span>
+
+          <span className="text-sm text-gray-400">  / 5 </span>
+
+          <span className="text-sm text-gray-400"> • </span>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("reviews")}
+            className="text-sm text-blue-600 hover:underline"
+          >
+            {product.reviews?.length ?? 0} reviews
+          </button>
+
+        </div>
+
+          {/* Stock status */}
+          <div className="mt-3">
+            {product.stock === 0 ? (
+              <span className="text-sm font-semibold text-red-600">
+                Out of stock
+              </span>
+            ) : product.stock <= 5 ? (
+              <span className="text-sm font-semibold text-orange-500">
+                Only {product.stock} left!
+              </span>
+            ) : (
+              <span className="text-sm font-semibold text-green-600">
+                In stock
+              </span>
+            )}
+          </div>
+
+          <div className="mt-5 flex flex-wrap items-center gap-2">
+            {/* Quantity stepper */}
+            <div className="flex items-center rounded-lg border border-gray-300">
+              <button
+                type="button"
+                onClick={decreaseQuantity}
+                disabled={product.stock === 0 || quantity <= 1}
+                aria-label="Decrease quantity"
+                className="flex h-9 w-9 items-center justify-center text-lg hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                −
+              </button>
+
+              <span
+                aria-live="polite"
+                className="min-w-8 text-center text-sm font-semibold"
+              >
+                {quantity}
+              </span>
+
+              <button
+                type="button"
+                onClick={increaseQuantity}
+                disabled={product.stock === 0 || quantity >= product.stock}
+                aria-label="Increase quantity"
+                className="flex h-9 w-9 items-center justify-center text-lg hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                +
+              </button>
+            </div>
+
+            {/* Add to Cart */}
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              disabled={product.stock === 0}
+              className="shrink-0 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-400"
+            >
+              {product.stock === 0 ? "Out of stock" : "Add to Cart"}
+            </button>
+          </div>
+
+          {/* Description */}
+          <p className="mt-5 leading-7 text-gray-600">
+            {product.description}
+          </p>
+
+        </div>
 
       </div>
 
@@ -409,9 +435,6 @@ function ProductPage() {
 
   </div>
 </div>
-
-
-
 
 
       <RelatedProducts
