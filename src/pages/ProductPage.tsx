@@ -38,6 +38,7 @@ function ProductPage() {
         setError(null);
         setProduct(null);
         setQuantity(1); //როცა პროდუქციაზე გადავალ არჩეულის რაოდენ დაბრუნდეს 1, 
+        setCartMessage(null);
 
         const response = await fetch(
           `https://dummyjson.com/products/${id}`,
@@ -344,7 +345,7 @@ function ProductPage() {
                 {cartMessage}
               </p>
             )}
-            
+
           </div>
 
           {/* Description */}
