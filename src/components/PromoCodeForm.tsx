@@ -24,31 +24,31 @@ function PromoCodeForm({
 
     if (success) {
       setCode("");
-      setMessage("პრომოკოდი წარმატებით გააქტიურდა!");
+      setMessage("Promo code successfully activated!");
       setHasError(false);
     } else {
-      setMessage("არასწორი პრომოკოდი. სცადეთ save10x.");
+      setMessage("Invalid promo code. Please try save10x.");
       setHasError(true);
     }
   }
 
   function handleRemove() {
     onRemove();
-    setMessage("პრომოკოდი გაუქმებულია.");
+    setMessage("Promo code removed.");
     setHasError(false);
   }
 
   return (
     <section className="rounded-xl border border-gray-200 bg-white p-5">
       <h2 className="text-lg font-bold text-gray-900">
-        ფასდაკლების კოდი
+        Promo Code
       </h2>
 
       <form onSubmit={handleSubmit}
         className="mt-4 flex flex-col gap-3 sm:flex-row"
       >
         <label htmlFor="promo-code" className="sr-only">
-          შეიყვანეთ პრომოკოდი
+          Enter Promo Code
         </label>
 
         <input
@@ -68,7 +68,7 @@ function PromoCodeForm({
           disabled={!code.trim()}
           className="rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          გამოყენება
+          Usage
         </button>
       </form>
 
@@ -86,7 +86,7 @@ function PromoCodeForm({
       {appliedCode && (
         <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm font-medium text-green-700">
-            აქტიური კოდი: {appliedCode.toUpperCase()}
+            Applied Code: {appliedCode.toUpperCase()}
           </p>
 
           <button
@@ -94,7 +94,7 @@ function PromoCodeForm({
             onClick={handleRemove}
             className="text-sm font-medium text-red-600 hover:underline"
           >
-            კოდის გაუქმება
+            Remove Code
           </button>
         </div>
       )}

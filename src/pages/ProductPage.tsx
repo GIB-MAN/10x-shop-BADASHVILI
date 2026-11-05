@@ -16,6 +16,7 @@ function ProductPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"description" | "reviews">("description");
+  const [cartMessage, setCartMessage] = useState<string | null>(null);
 
   // მომხმარებლის მიერ არჩეული thumbnail სურათების სტეიტი
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -28,11 +29,9 @@ function ProductPage() {
 
     async function fetchProduct() {
       if (!id || !/^\d+$/.test(id) || Number(id) < 1) {
-        setProduct(null);
-        setError("პროდუქტის ID არასწორია.");
-        setLoading(false);
-        return;
-      }
+         navigate("/not-found", { replace: true });
+       return;
+}
 
       try {
         setLoading(true);
@@ -51,7 +50,7 @@ function ProductPage() {
         }
 
         if (!response.ok) {
-          throw new Error("პროდუქტის ჩატვირთვა ვერ მოხერხდა.");
+          throw new Error("Failed to load product.");
         }
 
         const data: Product = await response.json();
@@ -71,7 +70,7 @@ function ProductPage() {
         setError(
           err instanceof Error
             ? err.message
-            : "დაფიქსირდა უცნობი შეცდომა.",
+            : "An unknown error occurred.",
         );
       } finally {
         if (!controller.signal.aborted) {
@@ -107,8 +106,13 @@ function ProductPage() {
         if (!product || product.stock === 0 || quantity < 1) {
           return;
         }
-
-        addToCart(product, quantity);  // კალათში დავამატოთ არჩეული პროდუქცია რაოდენობით 
+        const result = addToCart(product, quantity);
+        if (result) {
+          setCartMessage(result);
+        } else {
+        setCartMessage(`${quantity} item(s) added to cart successfully.`);
+        }
+       // addToCart(product, quantity);  // კალათში დავამატოთ არჩეული პროდუქცია რაოდენობით 
       }
 
 
@@ -151,12 +155,13 @@ function ProductPage() {
 
   return (
     <section className="py-8 sm:py-12">
-      <Link
-        to="/"
-        className="mb-6 inline-flex text-sm font-medium text-blue-600 hover:text-blue-800 focus:outline-none focus:underline"
+      <button
+        type="button"
+        onClick={() => navigate(-1)}
+        className="mb-6 text-sm font-medium text-blue-600 hover:text-blue-800"
       >
         ← Back to Catalog
-      </Link>
+      </button>
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         {/* მთავარი სურათი */}
@@ -179,7 +184,7 @@ function ProductPage() {
                   key={`${image}-${index}`}
                   type="button"
                   onClick={() => setSelectedImage(image)}
-                  aria-label={`სურათი ${index + 1}`}
+                  aria-label={`Picture ${index + 1}`}
                   aria-pressed={selectedImage === image}
                   className={`rounded-lg border-2 p-1 transition-colors ${
                     selectedImage === image
@@ -189,7 +194,7 @@ function ProductPage() {
                 >
                   <img
                     src={image}
-                    alt={`${product.title} — სურათი ${index + 1}`}
+                    alt={`${product.title} — Picture ${index + 1}`}
                     className="h-16 w-16 object-contain"
                   />
                 </button>
@@ -326,6 +331,20 @@ function ProductPage() {
             >
               {product.stock === 0 ? "Out of stock" : "Add to Cart"}
             </button>
+
+            {cartMessage && (
+              <p
+                role="status"
+                className={`mt-2 text-sm font-medium ${
+                  cartMessage.includes("successfully")
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
+                {cartMessage}
+              </p>
+            )}
+            
           </div>
 
           {/* Description */}

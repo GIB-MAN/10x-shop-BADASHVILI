@@ -38,6 +38,11 @@ function QuantityPicker({
       >
         +
       </button>
+        {quantity >= maxQuantity && (
+          <p className="w-full text-xs text-orange-600" role="status">
+            Maximum available quantity: {maxQuantity}
+          </p>
+        )}
     </div>
   );
 }

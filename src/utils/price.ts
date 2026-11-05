@@ -2,7 +2,9 @@ export function discountedPrice(
   price: number,
   discountPercentage: number,
 ): number {
-  return price * (1 - discountPercentage / 100);
+  return Number(
+    (price * (1 - discountPercentage / 100)).toFixed(2)
+  );
 }
 
 export function formatPrice(price: number): string {

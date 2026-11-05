@@ -12,8 +12,8 @@ type CartContextType = {
   subtotal: number;
   discount: number;
   total: number;
-  addToCart: (product: Product, quantity: number) => void;
-  updateQuantity: (productId: number, quantity: number) => void;
+  addToCart: (product: Product, quantity: number) => string | null;
+  updateQuantity: (productId: number, quantity: number) => string | null;
   removeFromCart: (productId: number) => void;
   applyPromoCode: (code: string) => boolean;
   removePromoCode: () => void;
@@ -29,6 +29,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: CartProviderProps) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [promoCode, setPromoCode] = useState<string | null>(null);
+
 
   // კალათის ჯამი ფასდაკლებამდე
   const subtotal = items.reduce(
@@ -59,27 +60,46 @@ export function CartProvider({ children }: CartProviderProps) {
   const total = Math.max(0, subtotal - discount);
   
   // პროდუქტის კალათაში დამატება
-  function addToCart(product: Product, quantity: number) {
+  function addToCart(product: Product, quantity: number,): string | null {
+    // მარაგისა და რაოდენობის შემოწმება
     if (product.stock < 1 || quantity < 1) {
-      return;
+      return "This product is out of stock.";
     }
 
-    const safeQuantity = Math.min(quantity, product.stock);
+    // ვიპოვოთ, უკვე არის თუ არა პროდუქტი კალათაში
+    const existingItem = items.find(
+      (item) => item.product.id === product.id,
+    );
 
+    // კალათაში არსებული რაოდენობა
+    const currentQuantity = existingItem?.quantity ?? 0;
+
+    // რამდენის დამატება შეიძლება
+    const availableQuantity = product.stock - currentQuantity;
+
+    // მარაგი სრულად ამოწურულია
+    if (availableQuantity <= 0) {
+      return `Maximum available quantity is ${product.stock}.`;
+    }
+
+    // თუ მოთხოვნილი რაოდენობა მარაგს აჭარბებს
+    const quantityToAdd = Math.min(
+      quantity,
+      availableQuantity,
+    );
+
+    // კალათის განახლება
     setItems((currentItems) => {
-      const existingItem = currentItems.find(
+      const itemExists = currentItems.some(
         (item) => item.product.id === product.id,
       );
 
-      if (existingItem) {
+      if (itemExists) {
         return currentItems.map((item) =>
           item.product.id === product.id
             ? {
                 ...item,
-                quantity: Math.min(
-                  item.quantity + safeQuantity,
-                  product.stock,
-                ),
+                quantity: item.quantity + quantityToAdd,
               }
             : item,
         );
@@ -87,29 +107,50 @@ export function CartProvider({ children }: CartProviderProps) {
 
       return [
         ...currentItems,
-        { product, quantity: safeQuantity },
+        {
+          product,
+          quantity: quantityToAdd,
+        },
       ];
     });
+
+    // მომხმარებლისთვის შეტყობინება
+    if (quantity > availableQuantity) {
+      return `Only ${quantityToAdd} item(s) added. Maximum stock: ${product.stock}.`;
+    }
+
+    return null;
   }
+
 
   // კალათაში არსებული პროდუქტის რაოდენობის შეცვლა
-  function updateQuantity(productId: number, quantity: number) {
-    setItems((currentItems) =>
-      currentItems.map((item) => {
-        if (item.product.id !== productId) {
-          return item;
-        }
-
-        return {
-          ...item,
-          quantity: Math.max(
-            1,
-            Math.min(quantity, item.product.stock),
-          ),
-        };
-      }),
+  function updateQuantity(productId: number, quantity: number): string | null {
+    const item = items.find(
+      (item) => item.product.id === productId,
     );
-  }
+
+    if (!item) {
+      return null;
+    }
+
+    if (quantity > item.product.stock) {
+      return `Maximum available quantity is ${item.product.stock}.`;
+    }
+
+    if (quantity < 1) {
+      return null;
+    }
+
+    setItems((currentItems) =>
+      currentItems.map((currentItem) =>
+        currentItem.product.id === productId
+          ? { ...currentItem, quantity }
+          : currentItem,
+      ),
+    );
+
+  return null;
+}
 
   // პროდუქტის კალათიდან წაშლა
   function removeFromCart(productId: number) {
@@ -126,7 +167,7 @@ export function CartProvider({ children }: CartProviderProps) {
 
   return (
     <CartContext.Provider
-      value={{ items, promoCode, subtotal, discount, total,addToCart, updateQuantity, removeFromCart, applyPromoCode, removePromoCode, clearCart, }}
+      value={{ items, promoCode, subtotal, discount, total, addToCart, updateQuantity, removeFromCart, applyPromoCode, removePromoCode, clearCart, }}
     >
       {children}
     </CartContext.Provider>
