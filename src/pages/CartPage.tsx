@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import QuantityPicker from "../components/QuantityPicker";
 import RemoveButton from "../components/RemoveButton";
@@ -15,6 +15,9 @@ function CartPage() {
         clearCart,
  } = useCart();
 
+  const location = useLocation();
+  const message = location.state?.message;
+
   // თუ ერთ პროდუქტზე მარაგის შეცდომა დამიფიქსირდა, 
   // მაშინ შეტყობინება ყველა პროდუქტის ბარათთან რომ აღარ გამოჩნდეს.
   const [quantityMessage, setQuantityMessage] = useState<{productId: number; message: string;} | null>(null);
@@ -25,6 +28,12 @@ function CartPage() {
         <h1 className="text-2xl font-bold text-gray-900">
           Cart
         </h1>
+
+        {message && (
+          <p role="alert" className="mt-3 text-red-600">
+            {message}
+          </p>
+        )}
 
         <p className="mt-3 text-gray-600">
           Your cart is empty.

@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useCart } from "../context/CartContext";
 import type { CartItem } from "../types";
 import PromoCodeForm from "../components/PromoCodeForm";
+import { discountedPrice, formatPrice } from "../utils/price";
 
 interface CheckoutValues {
   fullName: string;
@@ -35,16 +36,18 @@ const initialValues: CheckoutValues = {
 const checkoutSchema = Yup.object({
   fullName: Yup.string()
     .trim()
-    .required("Full name is required"),
+    .min(3, "Full name must be at least 3 characters")
+    .required("Full name must be at least 3 characters"),
 
   email: Yup.string()
     .trim()
     .email("Please enter a valid email address")
-    .required("Email is required"),
+    .required("Please enter a valid email address"),
 
   address: Yup.string()
     .trim()
-    .required("Address is required"),
+    .min(5, "Address must be at least 5 characters")
+    .required("Address must be at least 5 characters"),
 
   city: Yup.string()
     .trim()
@@ -57,24 +60,38 @@ function Checkout() {
 
   const [order, setOrder] = useState<OrderConfirmation | null>(null);
 
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
   const inputClass = "w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200";
 
   const errorClass = "mt-1 text-sm text-red-600";
 
-  const handleSubmit = ( values: CheckoutValues, ) => {
+  const handleSubmit = (
+    values: CheckoutValues,
+    { setSubmitting }: import("formik").FormikHelpers<CheckoutValues>,
+  ) => {
+    try {
+      setSubmitError(null);
 
-      // შეკვეთის მონაცემები შევინახოთ კალათის გასუფთავებამდე
-    setOrder({
-      ...values,
-      items: items.map((item) => ({ ...item })),
-      promoCode,
-      subtotal,
-      discount,
-      totalPrice: total,
-    });
+      // შეკვეთის მონაცემების შენახვა კალათის გასუფთავებამდე
+      setOrder({
+        ...values,
+        items: items.map((item) => ({ ...item })),
+        promoCode,
+        subtotal,
+        discount,
+        totalPrice: total,
+      });
 
-    // კალათის გასუფთავება
-    clearCart();
+      // კალათს ვასუფთავებთ
+      clearCart();
+    } catch {
+      setSubmitError(
+        "Something went wrong. Please try again."
+      );
+      // შეცდომის შემთხვევაში ფორმა ხელმისაწვდომი იქნება
+      setSubmitting(false);
+    }
   };
 
   // შეკვეთის წარმატებით გაფორმების შემდეგ
@@ -87,13 +104,10 @@ function Checkout() {
               ✓
             </div>
 
-            <h1 className="text-3xl font-bold text-gray-900">
-              Thank you for your order!
-            </h1>
-
             <p className="mt-3 text-gray-600">
-              Your order has been placed successfully.
+              Thank you! Your order has been placed.
             </p>
+
           </div>
 
           <div className="space-y-2 border-b border-gray-200 pb-5">
@@ -136,24 +150,33 @@ function Checkout() {
                   </p>
 
                   <p className="text-sm text-gray-500">
-                    Quantity: {item.quantity} × $
-                    {item.product.price.toFixed(2)}
+                    Quantity: {item.quantity} ×{" "}
+                    {formatPrice(
+                      discountedPrice(
+                        item.product.price,
+                        item.product.discountPercentage,
+                      )
+                    )}
                   </p>
+
                 </div>
 
                 <p className="font-semibold text-gray-900">
-                  $
-                  {(
-                    item.product.price * item.quantity
-                  ).toFixed(2)}
+                  {formatPrice(
+                    discountedPrice(
+                      item.product.price,
+                      item.product.discountPercentage,
+                    ) * item.quantity
+                  )}
                 </p>
+
               </div>
             ))}
           </div>
 
           <div className="space-y-3 border-t border-gray-200 pt-5">
             <div className="flex justify-between gap-4 text-gray-600">
-              <span>Total</span>
+              <span>Subtotal</span>
               <span>${order.subtotal.toFixed(2)}</span>
             </div>
 
@@ -195,25 +218,36 @@ function Checkout() {
 
   // თუ კალათა ცარიელია, checkout ფორმა არ გამოჩნდეს
   if (items.length === 0) {
-    return (
-      <main className="mx-auto max-w-2xl px-4 py-10 text-center">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Your cart is empty
-        </h1>
+      return (
+        <Navigate
+          to="/cart"
+          replace
+          state={{
+            message: "Your cart is empty. Add items before checkout.",
+          }}
+        />
+      );
+    }
+  // if (items.length === 0) {
+  //   return (
+  //     <main className="mx-auto max-w-2xl px-4 py-10 text-center">
+  //       <h1 className="text-2xl font-bold text-gray-900">
+  //         Your cart is empty
+  //       </h1>
 
-        <p className="mt-3 text-gray-600">
-          Add some items to your cart before checking out.
-        </p>
+  //       <p className="mt-3 text-gray-600">
+  //         Add some items to your cart before checking out.
+  //       </p>
 
-        <Link
-          to="/"
-          className="mt-6 inline-flex rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700"
-        >
-          Continue shopping
-        </Link>
-      </main>
-    );
-  }
+  //       <Link
+  //         to="/"
+  //         className="mt-6 inline-flex rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700"
+  //       >
+  //         Continue shopping
+  //       </Link>
+  //     </main>
+  //   );
+  // }
 
 
   return (
@@ -236,6 +270,15 @@ function Checkout() {
       >
         {({ isSubmitting, isValid, dirty, touched, errors }) => (
           <Form className="space-y-5" noValidate>
+
+            {submitError && (
+              <p
+                role="alert"
+                className="rounded-lg bg-red-50 p-3 text-sm text-red-600"
+              >
+                {submitError}
+              </p>
+            )}
 
             <div>
               <label
@@ -306,7 +349,11 @@ function Checkout() {
                 name="address"
                 type="text"
                 autoComplete="street-address"
-                className={inputClass}
+                className={`${inputClass} ${
+                  touched.address && errors.address
+                    ? "border-red-500 focus:border-red-500 focus:ring-red-200"
+                    : ""
+                }`}
                 placeholder="Street and house number"
               />
 
@@ -330,7 +377,11 @@ function Checkout() {
                 name="city"
                 type="text"
                 autoComplete="address-level2"
-                className={inputClass}
+                className={`${inputClass} ${
+                  touched.city && errors.city
+                    ? "border-red-500 focus:border-red-500 focus:ring-red-200"
+                    : ""
+                }`}
                 placeholder="Enter your city"
               />
 
@@ -342,8 +393,39 @@ function Checkout() {
             </div>
 
             <div className="space-y-3 rounded-lg bg-gray-50 p-4">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Order Summary
+              </h2>
+
+              {items.map((item) => (
+                <div
+                  key={item.product.id}
+                  className="flex items-center justify-between gap-4 border-b border-gray-200 pb-3"
+                >
+                  <div className="min-w-0">
+                    <p className="font-medium text-gray-900">
+                      {item.product.title}
+                    </p>
+
+                    <p className="text-sm text-gray-500">
+                      Quantity: {item.quantity}
+                    </p>
+                  </div>
+
+                  <span className="font-semibold text-gray-900">
+                    {formatPrice(
+                      discountedPrice(
+                        item.product.price,
+                        item.product.discountPercentage,
+                      ) * item.quantity
+                    )}
+                  </span>
+
+                </div>
+              ))}
+
               <div className="flex justify-between gap-4 text-gray-600">
-                <span>Total</span>
+                <span>Subtotal</span>
                 <span>${subtotal.toFixed(2)}</span>
               </div>
 
@@ -361,15 +443,21 @@ function Checkout() {
                 </>
               )}
 
+              <div className="flex justify-between gap-4 text-gray-600">
+                <span>Shipping</span>
+                <span>Free</span>
+              </div>
+
               <div className="flex justify-between gap-4 border-t border-gray-200 pt-3">
                 <span className="text-lg font-bold text-gray-900">
-                  Total Amount
+                  Total
                 </span>
 
                 <span className="text-xl font-bold text-blue-600">
                   ${total.toFixed(2)}
                 </span>
               </div>
+
             </div>
 
             <button
