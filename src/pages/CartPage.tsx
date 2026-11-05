@@ -6,7 +6,9 @@ import RemoveButton from "../components/RemoveButton";
 
 function CartPage() {
   const { items, updateQuantity, removeFromCart } = useCart();
-  const [quantityMessage, setQuantityMessage] = useState<string | null>(null);
+  // თუ ერთ პროდუქტზე მარაგის შეცდომა დამიფიქსირდა, 
+  // მაშინ შეტყობინება ყველა პროდუქტის ბარათთან რომ აღარ გამოჩნდეს.
+  const [quantityMessage, setQuantityMessage] = useState<{productId: number; message: string;} | null>(null);
 
   // კალათაში არსებული ყველა პროდუქტის საერთო ღირებულება
   const totalPrice = items.reduce(
@@ -73,13 +75,19 @@ function CartPage() {
                 maxQuantity={item.product.stock}
                 onQuantityChange={(quantity) => {
                   const result = updateQuantity(item.product.id, quantity);
-                  setQuantityMessage(result);
+                  setQuantityMessage(    
+                    result
+                    ? {
+                        productId: item.product.id,
+                        message: result,
+                      }
+                    : null);
                 }}
               />
 
-              {quantityMessage && (
+              {quantityMessage?.productId === item.product.id && (
                 <p role="alert" className="text-xs text-red-600">
-                  {quantityMessage}
+                  {quantityMessage.message}
                 </p>
               )}
               <RemoveButton

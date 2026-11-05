@@ -133,7 +133,7 @@ export function CartProvider({ children }: CartProviderProps) {
       return null;
     }
 
-    if (quantity > item.product.stock) {
+    if (item.product.stock < 1 || quantity > item.product.stock) {
       return `Maximum available quantity is ${item.product.stock}.`;
     }
 
