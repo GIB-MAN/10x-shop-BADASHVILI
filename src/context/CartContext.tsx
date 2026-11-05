@@ -2,6 +2,7 @@
 import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 import type { CartItem, Product } from "../types";
+import { discountedPrice } from "../utils/price";
 
 const PROMO_CODE = "save10x";
 const DISCOUNT_RATE = 0.1;
@@ -33,7 +34,13 @@ export function CartProvider({ children }: CartProviderProps) {
 
   // კალათის ჯამი ფასდაკლებამდე
   const subtotal = items.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
+    (sum, item) =>
+      sum +
+      discountedPrice(
+        item.product.price,
+        item.product.discountPercentage,
+      ) *
+        item.quantity,
     0,
   );
 
