@@ -162,3 +162,30 @@ The debugging and testing activities improved the application's cart management,
 The implementation follows the existing React and TypeScript architecture and uses reusable utility functions and context-based state management.
 
 The documented improvements and testing activities correspond to the P2, P3 CORE, P4 CORE, and P5 CORE development stages.
+
+---
+
+## Responsive Design and Mobile Navigation
+
+### Responsive Design Testing (375px)
+
+The application was tested locally at a viewport width of 375px to verify responsive behavior on mobile devices.
+
+### Identified Issues and Improvements
+
+- Verified that no horizontal scrolling occurs on any of the tested pages.
+- Confirmed that buttons and form elements remain within the screen boundaries.
+- Checked responsive behavior on Header, HomePage, ProductPage, CartPage, and CheckoutPage.
+- Identified the absence of a dedicated mobile navigation menu in the original Header implementation.
+- Implemented mobile navigation using Option A, adapting the existing navigation layout for smaller screens.
+- Verified that all navigation links work correctly on mobile devices.
+
+### Final Result
+
+All tested pages display correctly at a 375px viewport width.
+
+Mobile navigation works as expected, and no horizontal overflow or layout-breaking issues were observed during local testing.
+
+**Result: responsive design and mobile navigation requirements have been addressed and verified locally.**
+
+
