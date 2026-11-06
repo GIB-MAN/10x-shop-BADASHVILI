@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { Product, ProductsResponse } from "../types";
 import ProductGrid from "../components/ProductGrid";
+import ProductSkeleton from "../components/ProductSkeleton";
 
 const LIMIT = 12;
 
@@ -11,6 +12,9 @@ function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
  
+  // Retry-ისთვის მოთხოვნის ხელახლა გაშვების კონტროლი
+  const [retryCount, setRetryCount] = useState(0);
+
   const [searchParams, setSearchParams] = useSearchParams();
 
   const pageParam = Number(searchParams.get("page"));
@@ -254,7 +258,7 @@ function HomePage() {
     return () => {
       controller.abort();
     };
-  }, [page, query, category, sort]);
+  }, [page, query, category, sort, retryCount]);
 
    // გვერდის შეცვლა
   function handlePageChange(newPage: number) {
@@ -415,33 +419,72 @@ function HomePage() {
             <option value="rating-desc">Rating: high to low</option>
             <option value="name-asc">Name: A → Z</option>
           </select>
+
+            {/* Clear Filters Button */}
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={() => {
+                setSearchInput("");
+                setDebouncedSearch("");
+
+                setSearchParams({}, { replace: true });
+              }}
+              disabled={
+                !query &&
+                !category &&
+                sort === "default" &&
+                !searchInput
+              }
+              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Clear Filters
+            </button>
+          </div>
+
+
         </div>
 
 
       </div>
 
       {loading && (
-        <p
-          role="status"
-          className="py-12 text-center text-gray-600"
-        >
-          Loading products...
-        </p>
+        <section aria-label="Loading products">
+          <p
+            role="status"
+            className="mb-5 text-center text-sm text-gray-600"
+          >
+            Loading products...
+          </p>
+
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: LIMIT }).map((_, index) => (
+              <ProductSkeleton key={index} />
+            ))}
+          </div>
+        </section>
       )}
+
 
       {!loading && error && (
         <div
           role="alert"
-          className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700"
+          className="rounded-lg border border-red-200 bg-red-50 p-6 text-red-700"
         >
-          <p>{error}</p>
+          <h2 className="text-lg font-semibold">
+            Something went wrong
+          </h2>
+
+          <p className="mt-2">
+            {error}
+          </p>
 
           <button
             type="button"
-            onClick={() => window.location.reload()}
-            className="mt-3 rounded-lg bg-red-600 px-4 py-2 font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            onClick={() => setRetryCount((current) => current + 1)}
+            className="mt-4 rounded-lg bg-red-600 px-5 py-2.5 font-medium text-white transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
           >
-            Reload the page
+            Try again
           </button>
         </div>
       )}
