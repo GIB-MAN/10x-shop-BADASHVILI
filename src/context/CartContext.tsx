@@ -1,9 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useReducer } from "react";
+import { createContext, useContext, useReducer, useEffect } from "react";
 import type { ReactNode } from "react";
 import type { CartItem, Product } from "../types";
-//import { discountedPrice } from "../utils/price";
 import { Cart } from "../models/Cart";
+import { StorageService } from "../utils/StorageService";
 
 const PROMO_CODE = "10X10";
 
@@ -32,15 +32,6 @@ type CartState = {
 };
 
 // კალათაზე შესაძლო ქმედებები
-// type CartAction =
-//   | { type: "ADD_ITEM"; product: Product; quantity: number }
-//   | { type: "UPDATE_QUANTITY"; productId: number; quantity: number }
-//   | { type: "REMOVE_ITEM"; productId: number }
-//   | { type: "APPLY_PROMO" }
-//   | { type: "REMOVE_PROMO" }
-//   | { type: "CLEAR_CART" };
-
-// კალათაზე შესაძლო ქმედებები
 type CartAction =
   | { type: "ADD_ITEM"; product: Product; qty: number }
   | { type: "SET_QTY"; productId: number; qty: number }
@@ -54,6 +45,9 @@ const initialState: CartState = {
   items: [],
   promoCode: null,
 };
+
+const cartStorage = new StorageService<CartState>("shop_cart");
+
 
 // Reducer: კალათის მდგომარეობის ყველა ცვლილება ერთ ადგილას
 function cartReducer(state: CartState, action: CartAction): CartState {
@@ -163,25 +157,24 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: CartProviderProps) {
-  const [state, dispatch] = useReducer(cartReducer, initialState);
+  const [state, dispatch] = useReducer(
+  cartReducer,
+  initialState,
+  () => cartStorage.get(initialState),
+);
+
   const { items, promoCode } = state;
 
+  // კალათის მონაცემების შენახვა
+  useEffect(() => {
+    cartStorage.set(state);
+  }, [state]);
+
+
+  const cart = new Cart(items, promoCode);
 
   // კალათის ჯამი ფასდაკლებამდე
-  // const subtotal = items.reduce(
-  //   (sum, item) =>
-  //     sum +
-  //     discountedPrice(
-  //       item.product.price,
-  //       item.product.discountPercentage,
-  //     ) *
-  //       item.quantity,
-  //   0,
-  // );
-
-const cart = new Cart(items, promoCode);
-
-const subtotal = cart.subtotal;
+  const subtotal = cart.subtotal;
 
 
   // პრომოკოდის შემოწმება და გააქტიურება
@@ -240,11 +233,6 @@ const subtotal = cart.subtotal;
     return null;
   }
 
-
-
-
-
-
   // კალათაში არსებული პროდუქტის რაოდენობის შეცვლა
   function updateQuantity(
     productId: number,
@@ -274,11 +262,6 @@ const subtotal = cart.subtotal;
 
     return null;
   }
-
-
-
-
-
 
   // პროდუქტის კალათიდან წაშლა
   function removeFromCart(productId: number) {
