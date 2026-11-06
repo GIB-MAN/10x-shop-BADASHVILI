@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import type { Product, ProductsResponse } from "../types";
 import ProductGrid from "../components/ProductGrid";
 
@@ -10,11 +11,72 @@ function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
  
-  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const pageParam = Number(searchParams.get("page"));
+
+  const page =
+    Number.isInteger(pageParam) && pageParam > 0
+      ? pageParam
+      : 1;
+
   const [total, setTotal] = useState(0);
+
+  // Search input-ის მდგომარეობა
+  const [searchInput, setSearchInput] = useState(
+    searchParams.get("q") ?? ""
+  );
+
+  // Debounce-ის შემდეგ მიღებული საძიებო ტექსტი
+  const [debouncedSearch, setDebouncedSearch] = useState(
+    searchParams.get("q") ?? ""
+  );
+
+  // URL-იდან მიღებული საძიებო ტექსტი
+  const query = searchParams.get("q")?.trim() ?? "";
 
   // გვერდების საერთო რაოდენობა
   const totalPages = Math.ceil(total / LIMIT);
+
+  // Search-ის Debounce — 400ms
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchInput);
+    }, 400);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchInput]);
+
+  // Debounce-ის შემდეგ Search-ის URL-ში განახლება
+  useEffect(() => {
+    const trimmedSearch = debouncedSearch.trim();
+
+    const currentQuery = searchParams.get("q") ?? "";
+
+    // თუ საძიებო ტექსტი არ შეცვლილა, არაფერი გავაკეთოთ
+    if (trimmedSearch === currentQuery) {
+      return;
+    }
+
+    const nextParams = new URLSearchParams(searchParams);
+
+    // ძებნისას კატეგორია იშლება
+    nextParams.delete("category");
+
+    // ძებნისას პირველი გვერდიდან ვიწყებთ
+    nextParams.set("page", "1");
+
+    if (trimmedSearch) {
+      nextParams.set("q", trimmedSearch);
+    } else {
+      nextParams.delete("q");
+    }
+
+    setSearchParams(nextParams, { replace: true });
+
+  }, [debouncedSearch, searchParams, setSearchParams]);
 
   // გვერდების სია, დამოკიდებულია მიმდინარე გვერდზე და საერთო გვერდების რაოდენობაზე
   const getVisiblePages = (): (number | "...")[] => {
@@ -50,10 +112,14 @@ function HomePage() {
         setError(null);
 
         const skip = (page - 1) * LIMIT;
-        const response = await fetch(
-          `https://dummyjson.com/products?limit=${LIMIT}&skip=${skip}`,
-          { signal: controller.signal },
-        );
+
+        const url = query
+          ? `https://dummyjson.com/products/search?q=${encodeURIComponent(query)}&limit=${LIMIT}&skip=${skip}`
+          : `https://dummyjson.com/products?limit=${LIMIT}&skip=${skip}`;
+
+        const response = await fetch(url, {
+          signal: controller.signal,
+        });
 
         if (!response.ok) {
           throw new Error("Products could not be loaded.");
@@ -84,21 +150,25 @@ function HomePage() {
     return () => {
       controller.abort();
     };
-  }, [page]);
+  }, [page, query]);
 
    // გვერდის შეცვლა
   function handlePageChange(newPage: number) {
-    if (newPage < 1 || newPage > totalPages || newPage === page) {
-      return;
-    }
-
-    setPage(newPage);
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+  if (newPage < 1 || newPage > totalPages || newPage === page) {
+    return;
   }
+
+  const nextParams = new URLSearchParams(searchParams);
+
+  nextParams.set("page", String(newPage));
+
+  setSearchParams(nextParams);
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+}
 
   // საჩვენებელი პროდუქტების ნომრები
   const startItem = total === 0 ? 0 : (page - 1) * LIMIT + 1;
@@ -118,6 +188,26 @@ function HomePage() {
         <p className="mt-3 max-w-2xl text-gray-600">
           Discover your favorite products and view their details.
         </p>
+
+        {/* Search Toolbar */}
+        <div className="mt-6 max-w-xl">
+          <label
+            htmlFor="product-search"
+            className="mb-2 block text-sm font-medium text-gray-700"
+          >
+            Search products
+          </label>
+
+          <input
+            id="product-search"
+            type="search"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="Search by product name..."
+            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          />
+        </div>
+
       </div>
 
       {loading && (
