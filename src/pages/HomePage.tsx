@@ -11,6 +11,7 @@ function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retry, setRetry] = useState(0);
  
   // Retry-ისთვის მოთხოვნის ხელახლა გაშვების კონტროლი
   const [retryCount, setRetryCount] = useState(0);
@@ -313,115 +314,119 @@ function HomePage() {
           Discover your favorite products and view their details.
         </p>
 
-        {/* Search Toolbar */}
-        <div className="mt-6 max-w-xl">
-          <label
-            htmlFor="product-search"
-            className="mb-2 block text-sm font-medium text-gray-700"
-          >
-            Search products
-          </label>
+        {/* Search and Filters */}
+        <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-end">
 
-          <input
-            id="product-search"
-            type="search"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search by product name..."
-            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          />
-        </div>
+          {/* Search */}
+          <div className="min-w-0 min-w-0 flex-1">
+            <label
+              htmlFor="product-search"
+              className="mb-2 block text-sm font-medium text-gray-700"
+            >
+              Search products
+            </label>
 
-        {/* Category Filter */}
-        <div className="mt-4 max-w-xl">
-          <label
-            htmlFor="category-filter"
-            className="mb-2 block text-sm font-medium text-gray-700"
-          >
-            Filter by category
-          </label>
+            <input
+              id="product-search"
+              type="search"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Search by product name..."
+              className="h-12 w-full rounded-lg border border-gray-300 px-4 text-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            />
+          </div>
 
-          <select
-            id="category-filter"
-            value={category}
-            onChange={(e) => {
-              const nextParams = new URLSearchParams(searchParams);
+          {/* Category Filter */}
+          <div className="min-w-0 min-w-0 flex-1">
+            <label
+              htmlFor="category-filter"
+              className="mb-2 block text-sm font-medium text-gray-700"
+            >
+              Filter by category
+            </label>
 
-              const selectedCategory = e.target.value;
+            <select
+              id="category-filter"
+              value={category}
+              onChange={(e) => {
+                const nextParams = new URLSearchParams(searchParams);
+                const selectedCategory = e.target.value;
 
-              // Search პარამეტრის წაშლა
-              nextParams.delete("q");
+                nextParams.delete("q");
+                nextParams.set("page", "1");
 
-              // გვერდის დაბრუნება პირველ გვერდზე
-              nextParams.set("page", "1");
+                if (selectedCategory) {
+                  nextParams.set("category", selectedCategory);
+                } else {
+                  nextParams.delete("category");
+                }
 
-              if (selectedCategory) {
-                nextParams.set("category", selectedCategory);
-              } else {
-                nextParams.delete("category");
-              }
+                setSearchInput("");
+                setDebouncedSearch("");
 
-              // Search ველის გასუფთავება
-              setSearchInput("");
-              setDebouncedSearch("");
+                setSearchParams(nextParams);
+              }}
+              className="h-12 w-full rounded-lg border border-gray-300 bg-white px-4 text-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            >
+              <option value="">All categories</option>
 
-              // URL-ის განახლება
-              setSearchParams(nextParams);
-            }}
-            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          >
-            <option value="">All categories</option>
+              {categories.map((item) => (
+                <option key={item} value={item}>
+                  {item
+                    .split("-")
+                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(" ")}
+                </option>
+              ))}
+            </select>
+          </div>
 
-            {categories.map((item) => (
-              <option key={item} value={item}>
-                {item
-                  .split("-")
-                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                  .join(" ")}
-              </option>
-            ))}
-          </select>
-        </div>
+          {/* Sort Filter */}
+          <div className="min-w-0 min-w-0 flex-1">
+            <label
+              htmlFor="sort-filter"
+              className="mb-2 block text-sm font-medium text-gray-700"
+            >
+              Sort by
+            </label>
 
+            <select
+              id="sort-filter"
+              value={sort}
+              onChange={(e) => {
+                const nextParams = new URLSearchParams(searchParams);
+                const selectedSort = e.target.value;
 
-        {/* Sort Filter */}
-        <div className="mt-4 max-w-xl">
-          <label
-            htmlFor="sort-filter"
-            className="mb-2 block text-sm font-medium text-gray-700"
-          >
-            Sort by
-          </label>
+                nextParams.set("page", "1");
 
-          <select
-            id="sort-filter"
-            value={sort}
-            onChange={(e) => {
-              const nextParams = new URLSearchParams(searchParams);
+                if (selectedSort === "default") {
+                  nextParams.delete("sort");
+                } else {
+                  nextParams.set("sort", selectedSort);
+                }
 
-              const selectedSort = e.target.value;
+                setSearchParams(nextParams);
+              }}
+              className="h-12 w-full rounded-lg border border-gray-300 bg-white px-4 text-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            >
+              <option value="default">Default</option>
+              <option value="price-asc">Price: low to high</option>
+              <option value="price-desc">Price: high to low</option>
+              <option value="rating-desc">Rating: high to low</option>
+              <option value="name-asc">Name: A → Z</option>
+            </select>
+          </div>
+          
+          {/* Clear Filters Button */}
+          <div className="min-w-0 flex flex-col">
+            {/* Empty label space for alignment */}
+            <span
+              className="mb-2 block text-sm font-medium invisible"
+              aria-hidden="true"
+            >
+              Clear Filters
+            </span>
 
-              nextParams.set("page", "1");
-
-              if (selectedSort === "default") {
-                nextParams.delete("sort");
-              } else {
-                nextParams.set("sort", selectedSort);
-              }
-
-              setSearchParams(nextParams);
-            }}
-            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          >
-            <option value="default">Default</option>
-            <option value="price-asc">Price: low to high</option>
-            <option value="price-desc">Price: high to low</option>
-            <option value="rating-desc">Rating: high to low</option>
-            <option value="name-asc">Name: A → Z</option>
-          </select>
-
-            {/* Clear Filters Button */}
-          <div className="mt-4">
             <button
               type="button"
               onClick={() => {
@@ -436,7 +441,7 @@ function HomePage() {
                 sort === "default" &&
                 !searchInput
               }
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+              className="h-12 w-full rounded-lg border border-gray-300 px-4 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Clear Filters
             </button>
@@ -444,7 +449,6 @@ function HomePage() {
 
 
         </div>
-
 
       </div>
 
