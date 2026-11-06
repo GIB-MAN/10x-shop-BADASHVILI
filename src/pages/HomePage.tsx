@@ -62,6 +62,9 @@ function HomePage() {
   // არჩეული კატეგორია URL-იდან
   const category = searchParams.get("category") ?? "";
 
+  // არჩეული სორტირება URL-იდან
+  const sort = searchParams.get("sort") ?? "default";
+
   // Search input-ის მდგომარეობა
   const [searchInput, setSearchInput] = useState(
     searchParams.get("q") ?? ""
@@ -153,15 +156,49 @@ function HomePage() {
 
         const skip = (page - 1) * LIMIT;
 
-        let url: string;
+        // let url: string;
+
+        // API endpoint-ის განსაზღვრა
+        let endpoint: string;
 
         if (query) {
-          url = `https://dummyjson.com/products/search?q=${encodeURIComponent(query)}&limit=${LIMIT}&skip=${skip}`;
+          endpoint = "https://dummyjson.com/products/search";
         } else if (category) {
-          url = `https://dummyjson.com/products/category/${encodeURIComponent(category)}?limit=${LIMIT}&skip=${skip}`;
+          endpoint = `https://dummyjson.com/products/category/${encodeURIComponent(category)}`;
         } else {
-          url = `https://dummyjson.com/products?limit=${LIMIT}&skip=${skip}`;
+          endpoint = "https://dummyjson.com/products";
         }
+
+        // API პარამეტრები
+        const params = new URLSearchParams({
+          limit: String(LIMIT),
+          skip: String(skip),
+        });
+
+        // Search პარამეტრი
+        if (query) {
+          params.set("q", query);
+        }
+
+        // Sorting პარამეტრები
+        if (sort !== "default") {
+          const sortOptions: Record<string, { sortBy: string; order: string }> = {
+            "price-asc": { sortBy: "price", order: "asc" },
+            "price-desc": { sortBy: "price", order: "desc" },
+            "rating-desc": { sortBy: "rating", order: "desc" },
+            "name-asc": { sortBy: "title", order: "asc" },
+          };
+
+          const selectedSort = sortOptions[sort];
+
+          if (selectedSort) {
+            params.set("sortBy", selectedSort.sortBy);
+            params.set("order", selectedSort.order);
+          }
+        }
+
+        // საბოლოო URL
+        const url = `${endpoint}?${params.toString()}`;
 
         const response = await fetch(url, {
           signal: controller.signal,
@@ -196,7 +233,7 @@ function HomePage() {
     return () => {
       controller.abort();
     };
-  }, [page, query, category]);
+  }, [page, query, category, sort]);
 
    // გვერდის შეცვლა
   function handlePageChange(newPage: number) {
@@ -304,6 +341,45 @@ function HomePage() {
             ))}
           </select>
         </div>
+
+
+        {/* Sort Filter */}
+        <div className="mt-4 max-w-xl">
+          <label
+            htmlFor="sort-filter"
+            className="mb-2 block text-sm font-medium text-gray-700"
+          >
+            Sort by
+          </label>
+
+          <select
+            id="sort-filter"
+            value={sort}
+            onChange={(e) => {
+              const nextParams = new URLSearchParams(searchParams);
+
+              const selectedSort = e.target.value;
+
+              nextParams.set("page", "1");
+
+              if (selectedSort === "default") {
+                nextParams.delete("sort");
+              } else {
+                nextParams.set("sort", selectedSort);
+              }
+
+              setSearchParams(nextParams);
+            }}
+            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          >
+            <option value="default">Default</option>
+            <option value="price-asc">Price: low to high</option>
+            <option value="price-desc">Price: high to low</option>
+            <option value="rating-desc">Rating: high to low</option>
+            <option value="name-asc">Name: A → Z</option>
+          </select>
+        </div>
+
 
       </div>
 
