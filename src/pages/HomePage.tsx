@@ -22,6 +22,27 @@ function HomePage() {
 
   const [total, setTotal] = useState(0);
 
+
+  // არასწორი ან უარყოფითი page პარამეტრის გასწორება
+  useEffect(() => {
+    const rawPage = searchParams.get("page");
+
+    if (rawPage === null) {
+      return;
+    }
+
+    const pageNumber = Number(rawPage);
+
+    if (!Number.isInteger(pageNumber) || pageNumber < 1) {
+      const nextParams = new URLSearchParams(searchParams);
+
+      nextParams.delete("page");
+
+      setSearchParams(nextParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
+
   // კატეგორიების ჩამოტვირთვა
   useEffect(() => {
     const controller = new AbortController();
@@ -256,6 +277,22 @@ function HomePage() {
   // საჩვენებელი პროდუქტების ნომრები
   const startItem = total === 0 ? 0 : (page - 1) * LIMIT + 1;
   const endItem = Math.min(page * LIMIT, total);
+
+  // არასწორი გვერდის URL-ის გასწორება
+  useEffect(() => {
+    if (loading || total === 0) {
+      return;
+    }
+
+    if (page > totalPages) {
+      const nextParams = new URLSearchParams(searchParams);
+
+      nextParams.set("page", "1");
+
+      setSearchParams(nextParams, { replace: true });
+    }
+  }, [loading, total, page, totalPages, searchParams, setSearchParams]);
+
 
   return (
     <section className="py-8 sm:py-12">
