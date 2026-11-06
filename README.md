@@ -187,7 +187,7 @@ Make sure you have the following installed:
 ### 1. Clone the Repository
 
 ``` bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/10x-shop-BADASHVILI.git
+git clone https://github.com/GIB-MAN/10x-shop-BADASHVILI.git
 ```
 
 ### 2. Navigate to the Project Directory
@@ -309,9 +309,9 @@ npm run build
 
 ## 🔗 Live Demo
 
-**Deployment Status:** Not deployed yet.
+**Deployment Status:** Successfully deployed to Vercel.
 
-A live demo link will be added after deployment.
+[Live on Vercel.](https://10x-shop-giorgi-badashvili.vercel.app/)
 
 ------------------------------------------------------------------------
 
@@ -326,7 +326,7 @@ Application screenshots will be added after the final deployment.
 **BADASHVILI**
 
 -   **GitHub Repository:**
-    [10x-shop-BADASHVILI](https://github.com/YOUR_GITHUB_USERNAME/10x-shop-BADASHVILI)
+    [10x-shop-BADASHVILI](https://github.com/GIB-MAN/10x-shop-BADASHVILI)
 
 ------------------------------------------------------------------------
 
