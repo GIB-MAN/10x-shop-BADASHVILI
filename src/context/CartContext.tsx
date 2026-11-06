@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { CartItem, Product } from "../types";
 import { discountedPrice } from "../utils/price";
 
-const PROMO_CODE = "save10x";
+const PROMO_CODE = "10X10";
 const DISCOUNT_RATE = 0.1;
 
 type CartContextType = {
@@ -46,7 +46,7 @@ export function CartProvider({ children }: CartProviderProps) {
 
   // პრომოკოდის შემოწმება და გააქტიურება
   function applyPromoCode(code: string): boolean {
-    if (code.trim().toLowerCase() !== PROMO_CODE) {
+    if (code.trim().toLowerCase() !== PROMO_CODE.toLowerCase()) {
       return false;
     }
 

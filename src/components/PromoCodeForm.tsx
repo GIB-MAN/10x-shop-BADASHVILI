@@ -27,7 +27,7 @@ function PromoCodeForm({
       setMessage("Promo code successfully activated!");
       setHasError(false);
     } else {
-      setMessage("Invalid promo code. Please try save10x.");
+      setMessage("Invalid promo code. Please try 10X10");
       setHasError(true);
     }
   }
@@ -59,7 +59,7 @@ function PromoCodeForm({
             setCode(event.target.value);
             setMessage("");
           }}
-          placeholder="მაგ. save10x"
+          placeholder="promo: 10X10"
           autoComplete="off"
           className="min-w-0 flex-1 rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
         />
