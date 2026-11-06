@@ -49,3 +49,18 @@ export type CheckoutFormValues = {
   address: string;      // მიწოდების მისამართი
   city: string;         // ქალაქი, სადაც შეკვეთა უნდა მივიდეს
 };
+
+
+export type Order = {
+  id: string;
+  createdAt: string;
+  fullName: string;
+  email: string;
+  address: string;
+  city: string;
+  items: CartItem[];
+  promoCode: string | null;
+  subtotal: number;
+  discount: number;
+  totalPrice: number;
+};

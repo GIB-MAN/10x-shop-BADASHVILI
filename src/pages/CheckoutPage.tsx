@@ -3,30 +3,16 @@ import { Link, Navigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useCart } from "../context/CartContext";
-import type { CartItem } from "../types";
+//import type { CartItem } from "../types";
+import type { Order, CheckoutFormValues } from "../types";
+import { StorageService } from "../utils/StorageService";
 import PromoCodeForm from "../components/PromoCodeForm";
 import { discountedPrice, formatPrice } from "../utils/price";
 
-interface CheckoutValues {
-  fullName: string;
-  email: string;
-  address: string;
-  city: string;
-}
 
-interface OrderConfirmation {
-  fullName: string;
-  email: string;
-  address: string;
-  city: string;
-  items: CartItem[];
-  promoCode: string | null;
-  subtotal: number;
-  discount: number;
-  totalPrice: number;
-}
+const orderStorage = new StorageService<Order[]>("shop_orders");
 
-const initialValues: CheckoutValues = {
+const initialValues: CheckoutFormValues = {
   fullName: "",
   email: "",
   address: "",
@@ -58,7 +44,7 @@ function Checkout() {
 
   const { items, clearCart, promoCode, subtotal, discount, total, applyPromoCode, removePromoCode, } = useCart();
 
-  const [order, setOrder] = useState<OrderConfirmation | null>(null);
+  const [order, setOrder] = useState<Order | null>(null);
 
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -66,33 +52,44 @@ function Checkout() {
 
   const errorClass = "mt-1 text-sm text-red-600";
 
-  const handleSubmit = (
-    values: CheckoutValues,
-    { setSubmitting }: import("formik").FormikHelpers<CheckoutValues>,
-  ) => {
-    try {
-      setSubmitError(null);
 
-      // შეკვეთის მონაცემების შენახვა კალათის გასუფთავებამდე
-      setOrder({
-        ...values,
-        items: items.map((item) => ({ ...item })),
-        promoCode,
-        subtotal,
-        discount,
-        totalPrice: total,
-      });
+const handleSubmit = (
+  values: CheckoutFormValues,
+  { setSubmitting }: import("formik").FormikHelpers<CheckoutFormValues>,
+) => {
+  try {
+    setSubmitError(null);
 
-      // კალათს ვასუფთავებთ
-      clearCart();
-    } catch {
-      setSubmitError(
-        "Something went wrong. Please try again."
-      );
-      // შეცდომის შემთხვევაში ფორმა ხელმისაწვდომი იქნება
-      setSubmitting(false);
-    }
-  };
+    // ახალი შეკვეთის შექმნა
+    const newOrder: Order = {
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString(),
+      ...values,
+      items: items.map((item) => ({ ...item })),
+      promoCode,
+      subtotal,
+      discount,
+      totalPrice: total,
+    };
+
+    // არსებული შეკვეთების წამოღება
+    const savedOrders = orderStorage.get([]);
+
+    // ახალი შეკვეთის დამატება და შენახვა
+    orderStorage.set([...savedOrders, newOrder]);
+
+    // შეკვეთის დადასტურება
+    setOrder(newOrder);
+
+    // კალათის გასუფთავება
+    clearCart();
+
+  } catch {
+    setSubmitError("Something went wrong. Please try again.");
+    setSubmitting(false);
+  }
+};
+
 
   // შეკვეთის წარმატებით გაფორმების შემდეგ
   if (order) {
@@ -228,26 +225,6 @@ function Checkout() {
         />
       );
     }
-  // if (items.length === 0) {
-  //   return (
-  //     <main className="mx-auto max-w-2xl px-4 py-10 text-center">
-  //       <h1 className="text-2xl font-bold text-gray-900">
-  //         Your cart is empty
-  //       </h1>
-
-  //       <p className="mt-3 text-gray-600">
-  //         Add some items to your cart before checking out.
-  //       </p>
-
-  //       <Link
-  //         to="/"
-  //         className="mt-6 inline-flex rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700"
-  //       >
-  //         Continue shopping
-  //       </Link>
-  //     </main>
-  //   );
-  // }
 
 
   return (
@@ -262,7 +239,7 @@ function Checkout() {
               appliedCode={promoCode}
             />
 
-      <Formik<CheckoutValues>
+      <Formik<CheckoutFormValues>
         initialValues={initialValues}
         validationSchema={checkoutSchema}
         validateOnMount
