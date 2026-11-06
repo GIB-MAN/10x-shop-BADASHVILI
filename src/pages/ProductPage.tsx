@@ -85,7 +85,7 @@ function ProductPage() {
     return () => {
       controller.abort();
     };
-  }, [id]);
+  }, [id, navigate]);
 
 /////// პროდუქციის რაოდენობის ცვლილების და კალათში დამატების ფუნქციები
 

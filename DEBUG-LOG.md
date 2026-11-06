@@ -188,4 +188,34 @@ Mobile navigation works as expected, and no horizontal overflow or layout-breaki
 
 **Result: responsive design and mobile navigation requirements have been addressed and verified locally.**
 
+---
 
+## Improve SEO and Lighthouse audit scores
+
+- Added meta description to index.html
+- Created robots.txt for search engine crawlers
+- Fixed SEO-related Lighthouse warnings
+- Improved Lighthouse Performance score to 95
+- Verified Accessibility score of 95
+- Achieved 100 in Best Practices and SEO
+
+---
+
+## Error Boundary Implementation and Testing
+
+Implemented and tested a React Error Boundary to handle unexpected rendering errors.
+
+### Implemented Improvements
+- Added a reusable ErrorBoundary class component.
+- Implemented getDerivedStateFromError() to update the error state when a rendering error occurs.
+- Implemented componentDidCatch() for error logging using console.error().
+- Added a user-friendly fallback screen with an error message.
+- Added a Reload Page button to allow users to reload the application.
+- Integrated ErrorBoundary into main.tsx to protect the application.
+### Testing
+- Temporarily triggered a rendering error in App.tsx.
+- Verified that the Error Boundary successfully displayed the fallback screen.
+- Confirmed that the error message and Reload Page button were displayed correctly.
+- Removed the temporary test error after successful verification.
+
+## Result: The Error Boundary successfully catches rendering errors within the protected application tree and displays a fallback UI instead of leaving the user with a crashed application.

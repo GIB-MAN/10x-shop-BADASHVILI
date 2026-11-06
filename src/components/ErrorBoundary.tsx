@@ -22,7 +22,7 @@ class ErrorBoundary extends Component<
   }
 
   componentDidCatch(_error: Error, _errorInfo: ErrorInfo) {
-    // Error is caught to prevent the application from crashing.
+    console.error("Application Error:", _error, _errorInfo);
   }
 
   render() {

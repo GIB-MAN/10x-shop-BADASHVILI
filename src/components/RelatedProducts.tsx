@@ -16,60 +16,58 @@ function RelatedProducts({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!category) {
-      setProducts([]);
-      setLoading(false);
-      setError(null);
-      return;
-    }
+  
+    useEffect(() => {
+      if (!category) {
+        return;
+      }
 
-    const controller = new AbortController();
+      const controller = new AbortController();
 
-    async function fetchRelatedProducts() {
-      try {
-        setLoading(true);
-        setError(null);
+      async function fetchRelatedProducts() {
+        try {
+          setLoading(true);
+          setError(null);
 
-        const response = await fetch(
-          `https://dummyjson.com/products/category/${encodeURIComponent(category)}`,
-          { signal: controller.signal },
-        );
+          const response = await fetch(
+            `https://dummyjson.com/products/category/${encodeURIComponent(category)}`,
+            { signal: controller.signal },
+          );
 
-        if (!response.ok) {
-          throw new Error("Failed to load similar products.");
-        }
+          if (!response.ok) {
+            throw new Error("Failed to load similar products.");
+          }
 
-        const data: { products: Product[] } = await response.json();
+          const data: { products: Product[] } = await response.json();
 
-        setProducts(
-          data.products.filter(
-            (product) => product.id !== currentProductId,
-          ),
-        );
-      } catch (err: unknown) {
-        if (err instanceof Error && err.name === "AbortError") {
-          return;
-        }
+          setProducts(
+            data.products.filter(
+              (product) => product.id !== currentProductId,
+            ),
+          );
+        } catch (err: unknown) {
+          if (err instanceof Error && err.name === "AbortError") {
+            return;
+          }
 
-        setError(
-          err instanceof Error
-            ? err.message
-            : "An unknown error occurred.",
-        );
-      } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
+          setError(
+            err instanceof Error
+              ? err.message
+              : "An unknown error occurred.",
+          );
+        } finally {
+          if (!controller.signal.aborted) {
+            setLoading(false);
+          }
         }
       }
-    }
 
-    void fetchRelatedProducts();
+      void fetchRelatedProducts();
 
-    return () => {
-      controller.abort();
-    };
-  }, [category, currentProductId]);
+      return () => {
+        controller.abort();
+      };
+    }, [category, currentProductId]);
 
   if (loading) {
     return (
