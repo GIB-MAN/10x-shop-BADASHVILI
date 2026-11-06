@@ -22,6 +22,46 @@ function HomePage() {
 
   const [total, setTotal] = useState(0);
 
+  // კატეგორიების ჩამოტვირთვა
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function fetchCategories() {
+      try {
+        const response = await fetch(
+          "https://dummyjson.com/products/category-list",
+          { signal: controller.signal },
+        );
+
+        if (!response.ok) {
+          throw new Error("Categories could not be loaded.");
+        }
+
+        const data: string[] = await response.json();
+
+        setCategories(data);
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name === "AbortError") {
+          return;
+        }
+
+        console.error("Category loading error:", err);
+      }
+    }
+
+    void fetchCategories();
+
+    return () => {
+      controller.abort();
+    };
+  }, []);
+
+  // კატეგორიების ჩამონათვალი
+  const [categories, setCategories] = useState<string[]>([]);
+
+  // არჩეული კატეგორია URL-იდან
+  const category = searchParams.get("category") ?? "";
+
   // Search input-ის მდგომარეობა
   const [searchInput, setSearchInput] = useState(
     searchParams.get("q") ?? ""
@@ -113,9 +153,15 @@ function HomePage() {
 
         const skip = (page - 1) * LIMIT;
 
-        const url = query
-          ? `https://dummyjson.com/products/search?q=${encodeURIComponent(query)}&limit=${LIMIT}&skip=${skip}`
-          : `https://dummyjson.com/products?limit=${LIMIT}&skip=${skip}`;
+        let url: string;
+
+        if (query) {
+          url = `https://dummyjson.com/products/search?q=${encodeURIComponent(query)}&limit=${LIMIT}&skip=${skip}`;
+        } else if (category) {
+          url = `https://dummyjson.com/products/category/${encodeURIComponent(category)}?limit=${LIMIT}&skip=${skip}`;
+        } else {
+          url = `https://dummyjson.com/products?limit=${LIMIT}&skip=${skip}`;
+        }
 
         const response = await fetch(url, {
           signal: controller.signal,
@@ -150,7 +196,7 @@ function HomePage() {
     return () => {
       controller.abort();
     };
-  }, [page, query]);
+  }, [page, query, category]);
 
    // გვერდის შეცვლა
   function handlePageChange(newPage: number) {
@@ -206,6 +252,57 @@ function HomePage() {
             placeholder="Search by product name..."
             className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           />
+        </div>
+
+        {/* Category Filter */}
+        <div className="mt-4 max-w-xl">
+          <label
+            htmlFor="category-filter"
+            className="mb-2 block text-sm font-medium text-gray-700"
+          >
+            Filter by category
+          </label>
+
+          <select
+            id="category-filter"
+            value={category}
+            onChange={(e) => {
+              const nextParams = new URLSearchParams(searchParams);
+
+              const selectedCategory = e.target.value;
+
+              // Search პარამეტრის წაშლა
+              nextParams.delete("q");
+
+              // გვერდის დაბრუნება პირველ გვერდზე
+              nextParams.set("page", "1");
+
+              if (selectedCategory) {
+                nextParams.set("category", selectedCategory);
+              } else {
+                nextParams.delete("category");
+              }
+
+              // Search ველის გასუფთავება
+              setSearchInput("");
+              setDebouncedSearch("");
+
+              // URL-ის განახლება
+              setSearchParams(nextParams);
+            }}
+            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          >
+            <option value="">All categories</option>
+
+            {categories.map((item) => (
+              <option key={item} value={item}>
+                {item
+                  .split("-")
+                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(" ")}
+              </option>
+            ))}
+          </select>
         </div>
 
       </div>
